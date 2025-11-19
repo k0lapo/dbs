@@ -32,7 +32,7 @@ export async function GET() {
   }
 
   // map to camelCase for your frontend
-  const items = (data || []).map((row) => ({
+  const items = data.map((row: any) => ({
     id: row.id,
     productName: row.product_name,
     sku: row.sku,

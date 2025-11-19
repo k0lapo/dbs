@@ -102,7 +102,7 @@ export default function Footer() {
       </div>
 
       <a
-        href="https://wa.me/2348000000000?text=Hello%20DripBySoweto%2C%20I%20have%20a%20question"
+        href="https://wa.me/2348168224485?text=Hello%20DripBySoweto%2C%20I%want%20to%place%20an%order."
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-8 right-8 w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 z-40"
