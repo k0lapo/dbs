@@ -57,21 +57,23 @@ export async function GET(req: NextRequest) {
     )
   }
 
-  const orders = (data || []).map((o) => ({
+  const orders = (data || []).map((o: any) => ({
   id: o.id,
   orderNumber: o.order_number ?? null,
   firstName: o.first_name ?? "",
   lastName: o.last_name ?? "",
   customerName:
     o.customer_name ??
-    ((`${o.first_name ?? ""} ${o.last_name ?? ""}`).trim() || "Guest"),
+    (`${o.first_name ?? ""} ${o.last_name ?? ""}`.trim() || "Guest"),
   email: o.email ?? "",
   itemsCount: o.items_count ?? 0,
   totalAmount: Number(o.total_amount ?? 0),
-  status: o.status ?? "pending",
-  shippingAddress: o.shipping_address ?? "",
+  status: (o.status as string) || "pending",
+  shippingAddress: o.shipping_address ?? null,
   createdAt: o.created_at,
+  updatedAt: o.updated_at,
 }))
+
 
 
   return NextResponse.json({ orders }, { status: 200 })
