@@ -7,7 +7,7 @@ interface Order {
   order_number: string | null
   customer_name: string | null
   email: string | null
-  total_amount: number
+  total_amount: number | null
   status: "pending" | "processing" | "shipped" | "delivered"
   items_count: number | null
   shipping_address?: string | null
@@ -40,6 +40,7 @@ export default function OrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [selectedItems, setSelectedItems] = useState<OrderItem[]>([])
 
+  // ───────────────── Fetch orders list ─────────────────
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -118,6 +119,7 @@ export default function OrdersPage() {
     }
   }
 
+  // ───────────────── Open order details (hits [id] route) ─────────────────
   const openOrderDetails = async (id: string) => {
     try {
       setDetailsLoading(true)
@@ -133,8 +135,8 @@ export default function OrdersPage() {
       }
 
       const data = await res.json()
-      setSelectedOrder(data.order)
-      setSelectedItems(data.items || [])
+      setSelectedOrder(data.order as Order)
+      setSelectedItems((data.items || []) as OrderItem[])
     } catch (err) {
       console.error(err)
       alert(err instanceof Error ? err.message : "Failed to load order details")
@@ -237,7 +239,7 @@ export default function OrdersPage() {
                       {order.items_count ?? "—"}
                     </td>
                     <td className="px-6 py-4 text-foreground">
-                      ₦{Number(order.total_amount || 0).toLocaleString()}
+                      ₦{Number(order.total_amount ?? 0).toLocaleString()}
                     </td>
                     <td className="px-6 py-4">
                       <select
@@ -259,7 +261,9 @@ export default function OrdersPage() {
                       </select>
                     </td>
                     <td className="px-6 py-4 text-foreground text-sm">
-                      {new Date(order.created_at).toLocaleDateString()}
+                      {order.created_at
+                        ? new Date(order.created_at).toLocaleDateString()
+                        : "—"}
                     </td>
                     <td className="px-6 py-4">
                       <button
@@ -288,10 +292,12 @@ export default function OrdersPage() {
                 </h3>
                 {selectedOrder && (
                   <p className="text-xs text-muted-foreground mt-1">
-                    {selectedOrder.order_number} •{" "}
-                    {new Date(
-                      selectedOrder.created_at,
-                    ).toLocaleString()}
+                    {selectedOrder.order_number || "—"} •{" "}
+                    {selectedOrder.created_at
+                      ? new Date(
+                          selectedOrder.created_at,
+                        ).toLocaleString()
+                      : "—"}
                   </p>
                 )}
               </div>
@@ -355,10 +361,10 @@ export default function OrdersPage() {
                           </div>
                           <div className="text-right">
                             <p className="text-foreground font-semibold">
-                              ₦{item.subtotal.toLocaleString()}
+                              ₦{Number(item.subtotal).toLocaleString()}
                             </p>
                             <p className="text-muted-foreground">
-                              ₦{item.unit_price.toLocaleString()} each
+                              ₦{Number(item.unit_price).toLocaleString()} each
                             </p>
                           </div>
                         </div>
@@ -382,7 +388,7 @@ export default function OrdersPage() {
                       <span className="text-foreground">Total</span>
                       <span className="text-primary">
                         ₦{Number(
-                          selectedOrder.total_amount || 0,
+                          selectedOrder.total_amount ?? 0,
                         ).toLocaleString()}
                       </span>
                     </div>
@@ -390,7 +396,11 @@ export default function OrdersPage() {
                       <span className="text-muted-foreground">
                         Status
                       </span>
-                      <span className={getStatusColor(selectedOrder.status)}>
+                      <span
+                        className={`px-2 py-0.5 rounded ${getStatusColor(
+                          selectedOrder.status,
+                        )}`}
+                      >
                         {selectedOrder.status}
                       </span>
                     </div>

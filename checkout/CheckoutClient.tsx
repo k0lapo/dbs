@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
@@ -10,6 +9,37 @@ import Link from "next/link"
 import { Check } from "lucide-react"
 import { usePaystackPayment } from "react-paystack"
 import { useCart } from "@/components/cart-provider"
+
+// 🔑 Paystack public key (easy to swap test → live)
+const PAYSTACK_PUBLIC_KEY =
+  process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "pk_test_your_test_key_here"
+
+// ─── Helpers for estimated delivery (3–5 working days after payment) ───
+function addBusinessDays(base: Date, businessDays: number): Date {
+  const result = new Date(base)
+  while (businessDays > 0) {
+    result.setDate(result.getDate() + 1)
+    const day = result.getDay() // 0 = Sun, 6 = Sat
+    if (day !== 0 && day !== 6) {
+      businessDays--
+    }
+  }
+  return result
+}
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-NG", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  })
+}
+
+function getDeliveryWindow(paidAt: Date) {
+  const start = addBusinessDays(paidAt, 3)
+  const end = addBusinessDays(paidAt, 5)
+  return `${formatDate(start)} – ${formatDate(end)}`
+}
 
 export default function CheckoutPage() {
   const { items, subtotal } = useCart()
@@ -28,6 +58,7 @@ export default function CheckoutPage() {
 
   const [isProcessing, setIsProcessing] = useState(false)
   const [orderRef, setOrderRef] = useState<string | null>(null)
+  const [paidAt, setPaidAt] = useState<Date | null>(null)
 
   // ─── Derive order numbers from REAL CART ──────────────────────────────
   const itemsCount = items.reduce((sum, item) => sum + item.quantity, 0)
@@ -74,6 +105,8 @@ export default function CheckoutPage() {
       formData.email
     ) {
       setStep("payment")
+    } else {
+      alert("Please fill out all required shipping fields.")
     }
   }
 
@@ -81,9 +114,9 @@ export default function CheckoutPage() {
   const paystackConfig = {
     reference: `${Date.now()}`, // unique per session
     email: formData.email || "guest@dripbysoweto.com",
-    amount: orderTotal * 100, // Paystack expects kobo
+    amount: Math.round(orderTotal * 100), // Paystack expects kobo (integer)
     currency: "NGN",
-    publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "",
+    publicKey: PAYSTACK_PUBLIC_KEY,
     metadata: {
       customer_name: `${formData.firstName} ${formData.lastName}`.trim(),
       phone: formData.phone,
@@ -102,43 +135,58 @@ export default function CheckoutPage() {
       return
     }
 
+    if (!PAYSTACK_PUBLIC_KEY || PAYSTACK_PUBLIC_KEY === "pk_test_your_test_key_here") {
+      console.error("Paystack public key is missing or still using placeholder.")
+      alert("Payment configuration error. Please contact support.")
+      return
+    }
+
+    if (orderTotal <= 0) {
+      alert("Your order total must be greater than 0.")
+      return
+    }
+
     setIsProcessing(true)
 
     try {
       initializePayment({
-        onSuccess: async (reference: any) => {
+        onSuccess: async (reference: { reference?: string; [key: string]: any }) => {
           setIsProcessing(false)
-          const ref =
-            reference?.reference ||
-            reference?.trxref ||
-            reference?.trxref ||
-            null
 
+          const ref = reference?.reference || paystackConfig.reference || null
           setOrderRef(ref)
+          setPaidAt(new Date())
 
           // ── TALK TO SUPABASE BACKEND VIA API ROUTE ───────────────────
           try {
-            await fetch("/api/orders", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              paystackReference: reference.reference,
-              email: formData.email,
-              customerName: `${formData.firstName} ${formData.lastName}`.trim(),
-              shippingAddress: `${formData.address}, ${formData.city}, ${formData.state}`,
-              totalAmount: orderTotal,
-              items: cartItems.map((item) => ({
-                productId: String(item.id),
-                name: item.name,
-                sku: item.sku,              // if you have it in cart
-                unitPrice: item.price,
-                quantity: item.quantity,
-                color: item.color,
-                size: item.size,
-              })),
-            }),
-          })
+            const res = await fetch("/api/admin/orders", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                paystackReference: ref,
+                email: formData.email,
+                customerName: `${formData.firstName} ${formData.lastName}`.trim(),
+                shippingAddress: `${formData.address}, ${formData.city}, ${formData.state}`,
+                totalAmount: orderTotal,
+                items: items.map((item) => ({
+                  productId: String(item.id),
+                  name: item.name,
+                  sku: (item as any).sku || null, // if you have it in cart
+                  unitPrice: item.price,
+                  quantity: item.quantity,
+                  color: (item as any).color || null,
+                  size: (item as any).size || null,
+                })),
+              }),
+            })
 
+            console.log("POST /api/admin/orders status", res.status)
+
+            if (!res.ok) {
+              console.error("Failed to save order to Supabase:", await res.text())
+            } else {
+              console.log("✅ Order saved successfully to Supabase")
+            }
           } catch (err) {
             console.error("Failed to save order to Supabase:", err)
           }
@@ -158,6 +206,9 @@ export default function CheckoutPage() {
 
   // ─── CONFIRMATION VIEW ────────────────────────────────────────────────
   if (step === "confirmation") {
+    const paidDate = paidAt || new Date()
+    const estimatedDeliveryRange = getDeliveryWindow(paidDate)
+
     return (
       <main className="min-h-screen bg-background">
         <Navigation />
@@ -174,7 +225,7 @@ export default function CheckoutPage() {
             <div className="bg-muted border border-border rounded-lg p-6 space-y-4 text-left mt-8">
               <div>
                 <p className="text-sm text-muted-foreground">Order Number</p>
-                {/* You can later replace this with the real order_number from Supabase */}
+                {/* Later replace this with the real order_number from Supabase */}
                 <p className="text-lg font-bold text-foreground">#DBS-{new Date().getTime()}</p>
               </div>
               {orderRef && (
@@ -185,7 +236,9 @@ export default function CheckoutPage() {
               )}
               <div>
                 <p className="text-sm text-muted-foreground">Estimated Delivery</p>
-                <p className="text-lg font-bold text-foreground">November 3–5, 2025</p>
+                <p className="text-lg font-bold text-foreground">
+                  {estimatedDeliveryRange} (3–5 working days)
+                </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Order Total</p>
@@ -432,11 +485,14 @@ export default function CheckoutPage() {
 
             <div className="space-y-4 pb-4 border-b border-border">
               {items.map((item) => (
-                <div key={`${item.id}-${item.color ?? ""}-${item.size ?? ""}`} className="flex justify-between text-sm">
+                <div
+                  key={`${item.id}-${(item as any).color ?? ""}-${(item as any).size ?? ""}`}
+                  className="flex justify-between text-sm"
+                >
                   <span className="text-foreground">
                     {item.name}
-                    {item.size ? ` • ${item.size}` : ""}
-                    {item.color ? ` • ${item.color}` : ""} × {item.quantity}
+                    {(item as any).size ? ` • ${(item as any).size}` : ""}
+                    {(item as any).color ? ` • ${(item as any).color}` : ""} × {item.quantity}
                   </span>
                   <span className="font-medium text-foreground">
                     ₦{(item.price * item.quantity).toLocaleString()}

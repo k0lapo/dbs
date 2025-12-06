@@ -24,7 +24,7 @@ export default function HeroSection() {
           <div className="w-full md:max-w-md lg:max-w-lg text-right space-y-6 md:space-y-8">
             <div className="space-y-3">
               <p className="text-[0.7rem] tracking-[0.35em] uppercase text-white/50">
-                DripBySoweto · Drop
+                DripBySoweto
               </p>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-white leading-tight">
                 DBS

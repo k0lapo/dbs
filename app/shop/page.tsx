@@ -20,8 +20,8 @@ const allProducts = [
   { id: 9,  name: "DBS Double layer Jean",              price: "70,000", category: "bottoms",     image: "ascension front" },
   { id: 10, name: "DBS Ascension Shirt",                price: "₦100,000", category: "tops",        image: "ascension back" },
   { id: 11, name: "DripBySoweto Nylon Short",           price: "₨40,000".replace("₨","₦"), category: "bottoms",     image: "shorts" },
-  { id: 12, name: "Soweto Arts Embroidery jorts",       price: "70,000", category: "bottoms",     image: "jean jorts" },
-  { id: 13, name: "DBS Embroidered Suede Hat",          price: "₦100,000", category: "accessories", image: "suede" },
+  { id: 12, name: "Soweto Arts Embroidery jorts",       price: "₦70,000", category: "bottoms",     image: "jean jorts" },
+  { id: 13, name: "DBS Embroidered Suede Hat",          price: "₦100,000", category: "accessories", image: "suedehat" },
   { id: 14, name: "DBS embroidered Leather/Jean SnapBack", price: "₦80,000", category: "accessories", image: "jean snapback" },
   { id: 15, name: "DBS Two Piece Hoodie",               price: "₦120,000", category: "tracksuits",  image: "2piece hoodie" },
 ]
@@ -91,7 +91,6 @@ const handleImgError: React.ReactEventHandler<HTMLImageElement> = (e) => {
   }
 }
 
-/** ========== Build PRODUCTS ========== */
 const PRODUCTS = allProducts.map((p, i) => {
   const priceNum = parseNairaToNumber(p.price)
   const categoryTC = titleCase(p.category)
@@ -117,7 +116,6 @@ const PRICE_RANGES = [
   { label: "Over ₦150,000", min: 150000, max: Number.POSITIVE_INFINITY },
 ]
 
-/** ================== PAGE ================== */
 export default function ShopPage() {
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [selectedPriceRange, setSelectedPriceRange] = useState(0)
@@ -167,15 +165,11 @@ export default function ShopPage() {
           <div className="flex flex-col items-start md:items-end gap-3 text-xs md:text-sm text-white/60">
             <div className="flex items-center gap-2">
               <span className="h-px w-6 bg-white/30" />
-              <span>Free shipping on orders over ₦50,000</span>
+              <span>3-5 days delivery within Nigeria</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="h-px w-6 bg-white/30" />
-              <span>1-3 day delivery within Nigeria</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-px w-6 bg-white/30" />
-              <span>Secure checkout & easy returns</span>
+              <span>Secure checkout</span>
             </div>
           </div>
         </div>

@@ -39,12 +39,21 @@ const currencyOptions = [
           {/* Center: Logo */}
           <Link
             href="/"
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center"
+            className="
+              absolute left-1/2 top-1/2 
+              -translate-x-1/2 -translate-y-1/2 
+              flex items-center justify-center
+              w-auto
+            "
           >
             <img
               src="/dbslogo.png"
               alt="DripBySoweto Logo"
-              className="h-8 w-auto md:h-10 object-contain"
+              className="
+                h-6 md:h-8 lg:h-10 
+                max-w-full 
+                object-contain
+              "
             />
           </Link>
 

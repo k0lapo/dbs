@@ -1,3 +1,4 @@
+// app/api/admin/orders/[id]/route.ts
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
@@ -29,19 +30,23 @@ export async function GET(
       `
         id,
         order_number,
+        first_name,
+        last_name,
         customer_name,
         email,
         total_amount,
         status,
         items_count,
         shipping_address,
-        created_at
+        created_at,
+        updated_at
       `,
     )
     .eq("id", id)
     .single()
 
   if (orderError || !order) {
+    console.error("❌ fetch order error:", orderError)
     return NextResponse.json({ error: "Order not found" }, { status: 404 })
   }
 
@@ -65,14 +70,42 @@ export async function GET(
   if (itemsError) {
     console.error("❌ fetch order_items error:", itemsError)
     return NextResponse.json(
-      { error: "Failed to load order items" },
+      { error: "Failed to load order items", details: itemsError.message },
       { status: 500 },
     )
   }
 
+  // Normalize for frontend
+  const normalizedOrder = {
+    id: order.id,
+    orderNumber: order.order_number,
+    firstName: order.first_name,
+    lastName: order.last_name,
+    customerName: order.customer_name,
+    email: order.email,
+    totalAmount: Number(order.total_amount),
+    status: order.status,
+    itemsCount: order.items_count,
+    shippingAddress: order.shipping_address,
+    createdAt: order.created_at,
+    updatedAt: order.updated_at,
+  }
+
+  const normalizedItems = (items || []).map((item) => ({
+    id: item.id,
+    productId: item.product_id,
+    productName: item.product_name,
+    sku: item.sku,
+    unitPrice: Number(item.unit_price),
+    quantity: item.quantity,
+    color: item.color,
+    size: item.size,
+    subtotal: Number(item.subtotal),
+  }))
+
   return NextResponse.json({
-    order,
-    items: items ?? [],
+    order: normalizedOrder,
+    items: normalizedItems,
   })
 }
 
@@ -111,12 +144,16 @@ export async function PATCH(
       `
         id,
         order_number,
+        first_name,
+        last_name,
         customer_name,
         email,
         total_amount,
         status,
         items_count,
-        created_at
+        shipping_address,
+        created_at,
+        updated_at
       `,
     )
     .single()
@@ -124,10 +161,25 @@ export async function PATCH(
   if (error) {
     console.error("❌ Supabase PATCH order error:", error)
     return NextResponse.json(
-      { error: "Failed to update order status" },
+      { error: "Failed to update order status", details: error.message },
       { status: 500 },
     )
   }
 
-  return NextResponse.json({ order: data })
+  const normalizedOrder = {
+    id: data.id,
+    orderNumber: data.order_number,
+    firstName: data.first_name,
+    lastName: data.last_name,
+    customerName: data.customer_name,
+    email: data.email,
+    totalAmount: Number(data.total_amount),
+    status: data.status,
+    itemsCount: data.items_count,
+    shippingAddress: data.shipping_address,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+  }
+
+  return NextResponse.json({ order: normalizedOrder })
 }

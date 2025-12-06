@@ -1,3 +1,4 @@
+// app/api/admin/orders/[id]/route.ts
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
@@ -9,7 +10,7 @@ const supabase =
 
 export const dynamic = "force-dynamic"
 
-// GET /api/admin/orders/[id] → order + items
+// ───────────────── GET /api/admin/orders/[id] ─────────────────
 export async function GET(
   req: Request,
   { params }: { params: { id: string } },
@@ -29,54 +30,49 @@ export async function GET(
       `
         id,
         order_number,
+        first_name,
+        last_name,
         customer_name,
         email,
         total_amount,
         status,
         items_count,
         shipping_address,
-        created_at
+        created_at,
+        updated_at
       `,
     )
     .eq("id", id)
     .single()
 
   if (orderError || !order) {
+    console.error("❌ fetch order error:", orderError)
     return NextResponse.json({ error: "Order not found" }, { status: 404 })
   }
 
   const { data: items, error: itemsError } = await supabase
     .from("order_items")
-    .select(
-      `
-        id,
-        product_id,
-        product_name,
-        sku,
-        unit_price,
-        quantity,
-        color,
-        size,
-        subtotal
-      `,
-    )
+    .select("*") // select all columns to avoid name mismatches
     .eq("order_id", id)
 
   if (itemsError) {
     console.error("❌ fetch order_items error:", itemsError)
     return NextResponse.json(
-      { error: "Failed to load order items" },
+      { error: "Failed to load order items", details: itemsError.message },
       { status: 500 },
     )
   }
 
+  // Return raw DB shapes; your page.tsx expects snake_case fields:
+  // selectedOrder: order_number, email, total_amount, items_count, shipping_address, created_at
+  // selectedItems: product_name, unit_price, quantity, color, size, subtotal, etc.
   return NextResponse.json({
     order,
     items: items ?? [],
   })
 }
 
-// PATCH /api/admin/orders/[id] → update status
+// ───────────────── PATCH /api/admin/orders/[id] ─────────────────
 export async function PATCH(
   req: Request,
   { params }: { params: { id: string } },
@@ -111,12 +107,16 @@ export async function PATCH(
       `
         id,
         order_number,
+        first_name,
+        last_name,
         customer_name,
         email,
         total_amount,
         status,
         items_count,
-        created_at
+        shipping_address,
+        created_at,
+        updated_at
       `,
     )
     .single()
@@ -124,10 +124,11 @@ export async function PATCH(
   if (error) {
     console.error("❌ Supabase PATCH order error:", error)
     return NextResponse.json(
-      { error: "Failed to update order status" },
+      { error: "Failed to update order status", details: error.message },
       { status: 500 },
     )
   }
 
+  // Again: raw row (snake_case) so OrdersPage types are happy
   return NextResponse.json({ order: data })
 }

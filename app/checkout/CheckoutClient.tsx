@@ -11,6 +11,53 @@ import { Check } from "lucide-react"
 import { usePaystackPayment } from "react-paystack"
 import { useCart } from "@/components/cart-provider"
 
+// ─── Helpers for business-day delivery window ───────────────────────────
+
+// Add N working days (Mon–Fri) to a given date
+function addBusinessDays(base: Date, days: number): Date {
+  const result = new Date(base)
+  let added = 0
+
+  while (added < days) {
+    result.setDate(result.getDate() + 1)
+    const day = result.getDay() // 0 = Sun, 6 = Sat
+    if (day !== 0 && day !== 6) {
+      added++
+    }
+  }
+
+  return result
+}
+
+// Format "3–5 working days" window starting from payment date
+function formatDeliveryWindow(paymentDate: Date): string {
+  const start = addBusinessDays(paymentDate, 3)
+  const end = addBusinessDays(paymentDate, 5)
+
+  const startMonth = start.toLocaleString("en-NG", { month: "long" })
+  const endMonth = end.toLocaleString("en-NG", { month: "long" })
+
+  const startDay = start.getDate()
+  const endDay = end.getDate()
+  const startYear = start.getFullYear()
+  const endYear = end.getFullYear()
+
+  const sameMonthAndYear = startMonth === endMonth && startYear === endYear
+
+  if (sameMonthAndYear) {
+    // e.g. "March 5–7, 2025"
+    return `${startMonth} ${startDay}–${endDay}, ${startYear}`
+  }
+
+  // e.g. "March 29, 2025 – April 2, 2025"
+  return `${startMonth} ${startDay}, ${startYear} – ${endMonth} ${endDay}, ${endYear}`
+}
+
+// ─── Paystack key (test now, easy swap to live) ─────────────────────────
+
+const PAYSTACK_PUBLIC_KEY =
+  process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "pk_test_your_test_key_here" // ⬅️ replace with your test key, then live key later
+
 export default function CheckoutPage() {
   const { items, subtotal } = useCart()
 
@@ -28,6 +75,7 @@ export default function CheckoutPage() {
 
   const [isProcessing, setIsProcessing] = useState(false)
   const [orderRef, setOrderRef] = useState<string | null>(null)
+  const [deliveryWindow, setDeliveryWindow] = useState<string | null>(null)
 
   // ─── Derive order numbers from REAL CART ──────────────────────────────
   const itemsCount = items.reduce((sum, item) => sum + item.quantity, 0)
@@ -37,7 +85,7 @@ export default function CheckoutPage() {
   // If someone hits /checkout with an empty cart
   if (items.length === 0 && step !== "confirmation") {
     return (
-      <main className="min-h-screen bg-background">
+      <main className="min-h-screen bg-background pt-16 md:pt-20">
         <Navigation />
         <section className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center space-y-6">
@@ -74,6 +122,8 @@ export default function CheckoutPage() {
       formData.email
     ) {
       setStep("payment")
+    } else {
+      alert("Please fill out all required shipping fields.")
     }
   }
 
@@ -81,9 +131,9 @@ export default function CheckoutPage() {
   const paystackConfig = {
     reference: `${Date.now()}`, // unique per session
     email: formData.email || "guest@dripbysoweto.com",
-    amount: orderTotal * 100, // Paystack expects kobo
+    amount: Math.round(orderTotal * 100), // Paystack expects kobo (integer)
     currency: "NGN",
-    publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "",
+    publicKey: PAYSTACK_PUBLIC_KEY,
     metadata: {
       customer_name: `${formData.firstName} ${formData.lastName}`.trim(),
       phone: formData.phone,
@@ -95,71 +145,78 @@ export default function CheckoutPage() {
   const initializePayment = usePaystackPayment(paystackConfig)
 
   const handlePaymentSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  e.preventDefault()
 
-    if (!formData.email) {
-      alert("Please provide a valid email in the shipping step before paying.")
-      return
-    }
+  if (!formData.email) {
+    alert("Please provide a valid email in the shipping step before paying.")
+    return
+  }
 
-    setIsProcessing(true)
+  setIsProcessing(true)
 
-    try {
-      initializePayment({
-        onSuccess: async (reference: any) => {
-          setIsProcessing(false)
-          const ref =
-            reference?.reference ||
-            reference?.trxref ||
-            reference?.trxref ||
-            null
+  try {
+    initializePayment({
+      onSuccess: async (reference: any) => {
+        setIsProcessing(false)
 
-          setOrderRef(ref)
+        const ref =
+          reference?.reference ||
+          reference?.trxref ||
+          null
 
-          // ── TALK TO SUPABASE BACKEND VIA API ROUTE ───────────────────
-          try {
-            await fetch("/api/orders", {
+        setOrderRef(ref)
+
+        try {
+          const res = await fetch("/api/admin/orders", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              paystackReference: reference.reference,
+              paystackReference: ref,
               email: formData.email,
               customerName: `${formData.firstName} ${formData.lastName}`.trim(),
               shippingAddress: `${formData.address}, ${formData.city}, ${formData.state}`,
               totalAmount: orderTotal,
-              items: cartItems.map((item) => ({
+              items: items.map((item) => ({
                 productId: String(item.id),
                 name: item.name,
-                sku: item.sku,              // if you have it in cart
+                sku: (item as any).sku || null,
                 unitPrice: item.price,
                 quantity: item.quantity,
-                color: item.color,
-                size: item.size,
+                color: (item as any).color || null,
+                size: (item as any).size || null,
               })),
             }),
           })
 
-          } catch (err) {
-            console.error("Failed to save order to Supabase:", err)
+          if (!res.ok) {
+            const errorBody = await res.json().catch(() => null)
+            console.error("❌ Failed to save order:", res.status, errorBody)
+          } else {
+            const json = await res.json()
+            console.log("✅ Order saved:", json)
           }
+        } catch (err) {
+          console.error("Failed to save order to Supabase:", err)
+        }
 
-          setStep("confirmation")
-        },
-        onClose: () => {
-          setIsProcessing(false)
-        },
-      })
-    } catch (err) {
-      setIsProcessing(false)
-      console.error("Paystack initialization error:", err)
-      alert("Unable to initialize payment. Please try again.")
-    }
+        setStep("confirmation")
+      },
+      onClose: () => {
+        setIsProcessing(false)
+      },
+    })
+  } catch (err) {
+    setIsProcessing(false)
+    console.error("Paystack initialization error:", err)
+    alert("Unable to initialize payment. Please try again.")
   }
+}
+
 
   // ─── CONFIRMATION VIEW ────────────────────────────────────────────────
   if (step === "confirmation") {
     return (
-      <main className="min-h-screen bg-background">
+      <main className="min-h-screen bg-background pt-16 md:pt-20">
         <Navigation />
         <section className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center space-y-6">
@@ -174,7 +231,7 @@ export default function CheckoutPage() {
             <div className="bg-muted border border-border rounded-lg p-6 space-y-4 text-left mt-8">
               <div>
                 <p className="text-sm text-muted-foreground">Order Number</p>
-                {/* You can later replace this with the real order_number from Supabase */}
+                {/* Later replace this with the real order_number from Supabase */}
                 <p className="text-lg font-bold text-foreground">#DBS-{new Date().getTime()}</p>
               </div>
               {orderRef && (
@@ -185,7 +242,9 @@ export default function CheckoutPage() {
               )}
               <div>
                 <p className="text-sm text-muted-foreground">Estimated Delivery</p>
-                <p className="text-lg font-bold text-foreground">November 3–5, 2025</p>
+                <p className="text-lg font-bold text-foreground">
+                  {deliveryWindow ?? "3–5 working days"}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Order Total</p>
@@ -222,7 +281,7 @@ export default function CheckoutPage() {
 
   // ─── MAIN CHECKOUT FLOW ───────────────────────────────────────────────
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background pt-16 md:pt-20">
       <Navigation />
 
       {/* Header */}
@@ -427,16 +486,19 @@ export default function CheckoutPage() {
           </div>
 
           {/* Order Summary Sidebar */}
-          <div className="h-fit sticky top-20 border border-border rounded-lg p-6 bg-muted space-y-6">
+          <div className="h-fit sticky top-24 border border-border rounded-lg p-6 bg-muted space-y-6">
             <h3 className="font-bold text-lg text-foreground">Order Summary</h3>
 
             <div className="space-y-4 pb-4 border-b border-border">
               {items.map((item) => (
-                <div key={`${item.id}-${item.color ?? ""}-${item.size ?? ""}`} className="flex justify-between text-sm">
+                <div
+                  key={`${item.id}-${(item as any).color ?? ""}-${(item as any).size ?? ""}`}
+                  className="flex justify-between text-sm"
+                >
                   <span className="text-foreground">
                     {item.name}
-                    {item.size ? ` • ${item.size}` : ""}
-                    {item.color ? ` • ${item.color}` : ""} × {item.quantity}
+                    {(item as any).size ? ` • ${(item as any).size}` : ""}
+                    {(item as any).color ? ` • ${(item as any).color}` : ""} × {item.quantity}
                   </span>
                   <span className="font-medium text-foreground">
                     ₦{(item.price * item.quantity).toLocaleString()}

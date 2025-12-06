@@ -146,7 +146,7 @@ export default function FeaturedProducts() {
                     text-sm transition-colors
                   "
                 />
-                <span className="pointer-events-none absolute -bottom-[2px] left-0 h-[1px] w-full origin-left scale-x-0 bg-foreground transition-transform duration-200 peer-focus:scale-x-100" />
+                <span className="pointer-events-none absolute -bottom-0.5 left-0 h-px w-full origin-left scale-x-0 bg-foreground transition-transform duration-200 peer-focus:scale-x-100" />
               </div>
 
               <Button

@@ -54,7 +54,7 @@ export default function ContactPage() {
     {
       icon: MapPin,
       title: "Location",
-      value: "Lagos, Nigeria",
+      value: "Nigeria",
       description: "Available online and via private appointments.",
     },
   ]
@@ -66,7 +66,7 @@ export default function ContactPage() {
       {/* HERO – calm, minimal, luxurious */}
       <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden pt-20">
         <img
-          src="/modern-contact-us-minimalist-office.jpg"
+          src="contact.jpg"
           alt="Contact DripBySoweto"
           className="absolute inset-0 w-full h-full object-cover"
           style={{

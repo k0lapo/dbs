@@ -9,6 +9,12 @@ export const metadata: Metadata = {
   description:
     "Luxury streetwear blending bold creativity, premium quality, and authentic African street culture. Shop exclusive pieces that redefine urban fashion.",
   generator: "v0.app",
+
+  icons: {
+    icon: "/dbslogo.png",
+    shortcut: "/dbslogo.png",
+    apple: "/dbslogo.png",
+  },
 }
 
 export default function RootLayout({

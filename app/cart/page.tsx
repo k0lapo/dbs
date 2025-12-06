@@ -86,9 +86,9 @@ export default function CartPage() {
             </p>
           </div>
           <div className="text-xs md:text-sm text-white/70 space-y-1 md:text-right">
-            <p>Free shipping on orders over ₦50,000</p>
-            <p>1–3 day delivery within Nigeria</p>
-            <p>Secure checkout & easy returns</p>
+          
+            <p>3–5 day delivery within Nigeria</p>
+            <p>Secure checkout</p>
           </div>
         </div>
       </section>
@@ -283,7 +283,7 @@ export default function CartPage() {
                 </span>
               </div>
 
-              {shipping === 0 && subtotal > 50000 && (
+              {shipping === 0 && subtotal > 1000000 && (
                 <p className="text-[11px] text-secondary bg-secondary/10 border border-secondary/40 p-2 rounded-full text-center mt-2">
                   🎉 Free shipping unlocked on this order
                 </p>
@@ -305,7 +305,7 @@ export default function CartPage() {
               </div>
               <div className="flex gap-3">
                 <span className="text-primary shrink-0">✓</span>
-                <span className="text-muted-foreground">1–3 day delivery within Nigeria</span>
+                <span className="text-muted-foreground">3-5 day delivery within Nigeria</span>
               </div>
               <div className="flex gap-3">
                 <span className="text-primary shrink-0">✓</span>
