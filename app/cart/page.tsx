@@ -24,11 +24,11 @@ export default function CartPage() {
   const [couponCode, setCouponCode] = useState("")
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null)
   const [promoError, setPromoError] = useState("")
-
   const discount = appliedCoupon ? Math.floor(subtotal * 0.1) : 0
   const shipping = subtotal > 50000 ? 0 : items.length ? 2000 : 0
-  const tax = Math.floor((subtotal - discount) * 0.075)
-  const total = subtotal - discount + shipping + tax
+
+  const tax = 0
+  const total = subtotal - discount + shipping
 
   const applyCoupon = () => {
     setPromoError("")
@@ -252,8 +252,11 @@ export default function CartPage() {
               <div className="space-y-3 pb-4 border-b border-border/60">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span className="text-foreground font-medium">₦{subtotal.toLocaleString()}</span>
+                  <span className="text-foreground font-medium">
+                    ₦{subtotal.toLocaleString()}
+                  </span>
                 </div>
+
                 {discount > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-secondary">Discount</span>
@@ -262,15 +265,12 @@ export default function CartPage() {
                     </span>
                   </div>
                 )}
+
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Shipping</span>
                   <span className="text-foreground font-medium">
                     {shipping === 0 ? "FREE" : `₦${shipping.toLocaleString()}`}
                   </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Tax (7.5%)</span>
-                  <span className="text-foreground font-medium">₦{tax.toLocaleString()}</span>
                 </div>
               </div>
 
@@ -289,6 +289,7 @@ export default function CartPage() {
                 </p>
               )}
             </div>
+
 
             {/* Checkout CTA */}
             <Link href="/checkout">
