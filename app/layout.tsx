@@ -4,16 +4,19 @@ import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { CartProvider } from "@/components/cart-provider"
 
+// Hard-code the Supabase public URL for the logo
+const DBS_LOGO_URL =
+  "https://lkswytpxinibjklqwtko.supabase.co/storage/v1/object/public/product-images/products/dbslogo.png"
+
 export const metadata: Metadata = {
   title: "DripBySoweto | Premium Luxury Streetwear",
   description:
     "Luxury streetwear blending bold creativity, premium quality, and authentic African street culture. Shop exclusive pieces that redefine urban fashion.",
   generator: "v0.app",
-
   icons: {
-    icon: "/dbslogo.png",
-    shortcut: "/dbslogo.png",
-    apple: "/dbslogo.png",
+    icon: DBS_LOGO_URL,
+    shortcut: DBS_LOGO_URL,
+    apple: DBS_LOGO_URL,
   },
 }
 
