@@ -89,15 +89,15 @@ export default function CartPage() {
           <div className="space-y-5">
             {items.map((item) => {
               const key = item.imageKey || ""
-              const src = sbRender(key, 360, 70)
+              const src = sbRender(key, 260, 70)
 
               return (
                 <article
                   key={`${item.id}-${item.color}-${item.size}`}
-                  className="flex flex-col sm:flex-row gap-4 rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                  className="flex gap-4 sm:gap-5 rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all"
                 >
-                  {/* Product Image */}
-                  <div className="shrink-0 w-full sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-muted">
+                  {/* Product Thumbnail (small, never full-width) */}
+                  <div className="shrink-0 w-20 h-24 sm:w-24 sm:h-28 rounded-xl overflow-hidden bg-muted">
                     <img
                       src={src}
                       alt={item.name}
@@ -127,7 +127,9 @@ export default function CartPage() {
                     {/* Quantity */}
                     <div className="flex items-center gap-3">
                       <button
-                        onClick={() => setQty(item.id, item.quantity - 1, { color: item.color, size: item.size })}
+                        onClick={() =>
+                          setQty(item.id, item.quantity - 1, { color: item.color, size: item.size })
+                        }
                         className="w-9 h-9 rounded-full border border-border flex items-center justify-center hover:bg-muted transition"
                       >
                         <Minus className="w-4 h-4" />
@@ -138,7 +140,9 @@ export default function CartPage() {
                       </span>
 
                       <button
-                        onClick={() => setQty(item.id, item.quantity + 1, { color: item.color, size: item.size })}
+                        onClick={() =>
+                          setQty(item.id, item.quantity + 1, { color: item.color, size: item.size })
+                        }
                         className="w-9 h-9 rounded-full border border-border flex items-center justify-center hover:bg-muted transition"
                       >
                         <Plus className="w-4 h-4" />
@@ -147,7 +151,7 @@ export default function CartPage() {
                   </div>
 
                   {/* Total & Remove */}
-                  <div className="flex flex-row sm:flex-col justify-between items-end gap-3">
+                  <div className="flex flex-col justify-between items-end gap-3">
                     <div className="text-base md:text-lg font-semibold">
                       ₦{(item.price * item.quantity).toLocaleString()}
                     </div>
@@ -186,7 +190,12 @@ export default function CartPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between bg-secondary/10 border border-secondary/50 px-4 py-2 rounded-xl">
                     <span className="text-secondary font-semibold uppercase">{appliedCoupon}</span>
-                    <button onClick={removeCoupon} className="text-muted-foreground hover:text-foreground">✕</button>
+                    <button
+                      onClick={removeCoupon}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      ✕
+                    </button>
                   </div>
                   <p className="text-xs text-muted-foreground">10% discount applied.</p>
                 </div>
@@ -250,7 +259,6 @@ export default function CartPage() {
                 </Button>
               </Link>
             </div>
-
           </aside>
         </div>
       </section>
