@@ -7,29 +7,30 @@ export default function Footer() {
   return (
     <footer className="bg-background/95 border-t border-border/60 backdrop-blur-xl mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-18">
-        {/* TOP AREA — Mobile centered / Desktop grid */}
+        {/* TOP AREA — Mobile stacked / Desktop grid */}
         <div
           className="
-            grid grid-cols-2 md:grid-cols-4 
-            gap-8 md:gap-12 mb-10 
-            text-center md:text-left
+            grid grid-cols-1 md:grid-cols-4 
+            gap-8 md:gap-12 mb-10
           "
         >
           {/* BRAND + LOGO with breathing hover */}
-          <div className="col-span-2 md:col-span-1 flex flex-col items-center md:items-start space-y-4">
+          <div className="col-span-1 flex flex-col items-center md:items-start space-y-4">
             <div className="relative inline-flex items-center justify-center group">
               {/* Soft glow halo */}
-              <div className="
-                absolute -inset-3 
-                rounded-full 
-                bg-foreground/10 
-                blur-xl 
-                opacity-0 
-                group-hover:opacity-100 
-                transition-opacity 
-                duration-500 
-                ease-out
-              " />
+              <div
+                className="
+                  absolute -inset-3 
+                  rounded-full 
+                  bg-foreground/10 
+                  blur-xl 
+                  opacity-0 
+                  group-hover:opacity-100 
+                  transition-opacity 
+                  duration-500 
+                  ease-out
+                "
+              />
               {/* Logo itself */}
               <img
                 src="/dbslogo.png"
@@ -49,7 +50,7 @@ export default function Footer() {
             </div>
 
             {/* SHORT TEXT – RESPONSIVE */}
-            <p className="text-[11px] text-muted-foreground leading-relaxed font-light max-w-xs md:hidden">
+            <p className="text-[11px] text-muted-foreground leading-relaxed font-light max-w-xs md:hidden text-center md:text-left">
               Premium African luxury streetwear.
             </p>
 
@@ -101,7 +102,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* SOCIAL / EMAIL */}
+          {/* SOCIAL / EMAIL — centered on mobile, left on desktop */}
           <div className="space-y-3 flex flex-col items-center md:items-start">
             <h4 className="text-[11px] tracking-[0.3em] uppercase text-foreground/70">
               Follow
@@ -134,7 +135,7 @@ export default function Footer() {
               </a>
             </div>
 
-            <p className="text-[11px] text-muted-foreground font-light max-w-[200px]">
+            <p className="text-[11px] text-muted-foreground font-light max-w-[200px] text-center md:text-left">
               Wholesale & collabs:{" "}
               <span className="underline underline-offset-4">
                 dbsbysowetong09@gmail.com
