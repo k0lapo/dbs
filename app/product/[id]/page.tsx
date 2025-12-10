@@ -2,13 +2,12 @@
 
 import { useMemo, useState } from "react"
 import { useParams } from "next/navigation"
-import Link from "next/link"        // ✅ ADD THIS
+import Link from "next/link"
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
 import { Button } from "@/components/ui/button"
-import { Heart, Share2, ChevronLeft, ChevronRight, Plus, Minus } from "lucide-react"
+import { Heart, Share2, ChevronLeft, ChevronRight, Plus, Minus, Check } from "lucide-react"
 import { useCart } from "@/components/cart-provider"
-
 
 // Keep the SAME list as shop for id/name/category/slug
 const allProducts = [
@@ -21,18 +20,20 @@ const allProducts = [
   { id: 7,  name: "DBS Crzy Armless",                   price: "₦50,000", category: "tops",        image: "JS1" },
   { id: 8,  name: "DBS Christ D Savior Crop armless",   price: "₦30,000", category: "tops",        image: "tank" },
   { id: 9,  name: "DBS Double layer Jean",              price: "₦70,000", category: "bottoms",     image: "ascension front" },
-  { id: 10, name: "DBS Ascension Shirt",                price: "₦100,000", category: "tops",        image: "ascension back" },
+  { id: 10, name: "DBS Ascension Shirt",                price: "₦100,000", category: "tops",       image: "ascension back" },
   { id: 11, name: "DripBySoweto Nylon Short",           price: "₨40,000".replace("₨","₦"), category: "bottoms",     image: "shorts" },
-  { id: 12, name: "Soweto Arts Embroidery jorts",       price: "70,000", category: "bottoms",     image: "jean jorts" },
+  { id: 12, name: "Soweto Arts Embroidery jorts",       price: "₦70,000", category: "bottoms",     image: "jean jorts" },
   { id: 13, name: "DBS Embroidered Suede Hat",          price: "₦100,000", category: "accessories", image: "suedehat" },
   { id: 14, name: "DBS embroidered Leather/Jean SnapBack", price: "₦80,000", category: "accessories", image: "jean snapback" },
   { id: 15, name: "DBS Two Piece Hoodie",               price: "₦120,000", category: "tracksuits",  image: "2piece hoodie" },
 ]
 
-
 // helpers
-const parseNairaToNumber = (p: string) => Number(p.replace(/[^\d]/g, "")) || 0
-const titleCase = (s: string) => s.replace(/\w\S*/g, (t) => t[0].toUpperCase() + t.slice(1).toLowerCase())
+const parseNairaToNumber = (p: string) =>
+  Number(p.replace(/[^\d]/g, "")) || 0
+
+const titleCase = (s: string) =>
+  s.replace(/\w\S*/g, (t) => t[0].toUpperCase() + t.slice(1).toLowerCase())
 
 const SB_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/\/+$/, "")
 const sbRender = (key: string, width = 1200, q = 75) =>
@@ -51,8 +52,6 @@ const hydrate = (p: (typeof allProducts)[number]) => {
     name: p.name,
     category: titleCase(p.category),
     price,
-    rating: 5,
-    reviews: 12,
     description: `${p.name} — premium DBS quality with comfort, durability, and street-ready style.`,
     details: [
       "Premium fabric & stitching",
@@ -69,7 +68,6 @@ const hydrate = (p: (typeof allProducts)[number]) => {
         ? ["One Size"]
         : ["XS", "S", "M", "L", "XL"],
     colors: ["Black", "White", "Navy", "Grey"],
-    // image key base (no -2/-3 yet)
     baseKey: `products/${p.image}.jpg`,
     sku: `DBS-${p.category.toUpperCase().slice(0, 3)}-${String(p.id).padStart(3, "0")}`,
     inStock: true,
@@ -91,7 +89,7 @@ function Thumb({
   return (
     <button
       onClick={onClick}
-      className="shrink-0 w-16 h-16 rounded-lg overflow-hidden border border-border/60 hover:border-foreground/70 transition-colors"
+      className="shrink-0 w-16 h-16 rounded-md overflow-hidden border border-neutral-200 hover:border-neutral-800 transition-colors"
       aria-label={`View ${alt}`}
     >
       <img
@@ -106,17 +104,16 @@ function Thumb({
 }
 
 export default function ProductPage() {
-  // ✅ Use useParams in a client component
   const params = useParams<{ id: string }>()
   const id = Number.parseInt(params.id as string)
+  const [isAdding, setIsAdding] = useState(false)
 
-  // same as before:
   const base = allProducts.find((p) => p.id === id) || allProducts[0]
   const product = hydrate(base)
 
   const { addItem } = useCart()
 
-  // Build gallery candidates:
+  // gallery
   const candidateKeys = [
     product.baseKey,
     product.baseKey.replace(".jpg", "-1.jpg"),
@@ -142,7 +139,6 @@ export default function ProductPage() {
     else e.currentTarget.src = `https://source.unsplash.com/1200x1200/?streetwear,apparel`
   }
 
-  // related (same category)
   const related = useMemo(
     () =>
       allProducts
@@ -157,39 +153,44 @@ export default function ProductPage() {
     [base.id, base.category]
   )
 
+  const handleAddToBag = () => {
+    if (isAdding) return
+
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity,
+      color: selectedColor,
+      size: selectedSize,
+      imageKey: product.baseKey,
+    })
+
+    setIsAdding(true)
+    setTimeout(() => setIsAdding(false), 400)
+  }
+
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-white pt-16 md:pt-20 text-neutral-900">
       <Navigation />
 
-      {/* BREADCRUMB + PRODUCT STRIP (lux, minimal) */}
-      <section className="border-b border-border bg-black text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-1">
-            <p className="text-[11px] tracking-[0.3em] uppercase text-white/40">DBS STUDIO</p>
-            <div className="flex flex-wrap items-center gap-2 text-xs md:text-sm text-white/60">
-              <Link href="/" className="hover:text-white/90">
-                Home
-              </Link>
-              <span>/</span>
-              <Link href="/shop" className="hover:text-white/90">
-                Shop
-              </Link>
-              <span>/</span>
-              <span className="text-white/90">{product.name}</span>
-            </div>
-          </div>
-
-          
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
+        {/* Small, minimal back link */}
+        <div className="mb-6 md:mb-10">
+          <Link
+            href="/shop"
+            className="inline-flex items-center gap-2 text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+          >
+            <span className="h-px w-4 bg-neutral-400" />
+            Back to shop
+          </Link>
         </div>
-      </section>
 
-
-      {/* MAIN PRODUCT AREA */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-10 lg:gap-14">
+        {/* MAIN GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
           {/* GALLERY SIDE */}
-          <div className="space-y-5">
-            <div className="relative bg-card/60 rounded-2xl overflow-hidden aspect-square flex items-center justify-center border border-border/60">
+          <div className="space-y-4">
+            <div className="relative bg-white border border-neutral-200 rounded-none lg:rounded-md overflow-hidden aspect-[3/4] flex items-center justify-center">
               <img
                 key={mainUrl}
                 src={mainUrl}
@@ -199,7 +200,7 @@ export default function ProductPage() {
                 onError={handleMainError}
               />
 
-              {/* Arrows */}
+              {/* Arrows – minimal */}
               <button
                 onClick={() =>
                   setCurrentIdx((prev) => {
@@ -208,10 +209,10 @@ export default function ProductPage() {
                     return next
                   })
                 }
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/55 hover:bg-black/80 text-white p-2 rounded-full transition-colors"
+                className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-neutral-900 border border-neutral-300 rounded-full p-1.5 transition-colors"
                 aria-label="Previous image"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={() =>
@@ -221,16 +222,11 @@ export default function ProductPage() {
                     return next
                   })
                 }
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/55 hover:bg-black/80 text-white p-2 rounded-full transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-neutral-900 border border-neutral-300 rounded-full p-1.5 transition-colors"
                 aria-label="Next image"
               >
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="w-4 h-4" />
               </button>
-
-              {/* Pagination chip */}
-              <div className="absolute bottom-4 right-4 bg-black/75 text-white px-3 py-1 rounded-full text-xs">
-                {currentIdx + 1} / {candidateKeys.length}
-              </div>
             </div>
 
             {/* Thumbnails */}
@@ -249,224 +245,182 @@ export default function ProductPage() {
             </div>
           </div>
 
-          {/* INFO SIDE – sticky card on desktop */}
-          <div className="lg:sticky lg:top-24">
-            <div className="rounded-2xl border border-border/70 bg-card/70 backdrop-blur-sm p-6 md:p-7 space-y-6 shadow-[0_18px_60px_rgba(0,0,0,0.12)]">
-              {/* Title + rating */}
-              <div className="space-y-3">
-                <p className="text-[11px] tracking-[0.28em] uppercase text-muted-foreground">
-                  {product.category}
-                </p>
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-light text-foreground leading-tight">
-                  {product.name}
-                </h1>
-
-                <div className="flex items-center gap-3">
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <span
-                        key={i}
-                        className={`text-sm ${i < product.rating ? "text-accent" : "text-muted-foreground"}`}
-                      >
-                        ★
-                      </span>
-                    ))}
-                  </div>
-                  <span className="text-xs md:text-sm text-muted-foreground">
-                    {product.reviews} verified reviews
-                  </span>
-                </div>
-              </div>
-
-              {/* Price + sku + stock */}
-              <div className="space-y-1">
-                <p className="text-2xl md:text-3xl font-semibold text-primary">
-                  ₦{product.price.toLocaleString()}
-                </p>
-                <p
-                  className={`text-xs font-medium ${
-                    product.inStock ? "text-secondary" : "text-destructive"
-                  }`}
-                >
-                  {product.inStock ? "In stock • Ready to ship" : "Out of stock"}
-                </p>
-                <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-                  SKU: {product.sku}
-                </p>
-              </div>
-
-              {/* Short description */}
-              <p className="text-sm md:text-[15px] text-muted-foreground leading-relaxed">
-                {product.description}
+          {/* INFO SIDE */}
+          <div className="space-y-8 lg:space-y-10">
+            {/* Title, category, price */}
+            <div className="space-y-3">
+              <p className="text-[11px] tracking-[0.2em] uppercase text-neutral-500">
+                {product.category}
               </p>
+              <h1 className="text-2xl md:text-3xl font-light tracking-tight">
+                {product.name}
+              </h1>
+              <p className="text-xl md:text-2xl font-normal">
+                ₦{product.price.toLocaleString()}
+              </p>
+              <p className="text-xs text-neutral-500">
+                In stock · Ships in 3–5 business days within Nigeria
+              </p>
+            </div>
 
-              {/* Color selector */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs md:text-sm">
-                  <span className="font-semibold text-foreground">
-                    Color <span className="font-normal text-muted-foreground">/ {selectedColor}</span>
-                  </span>
-                </div>
-                <div className="flex gap-2 flex-wrap">
-                  {product.colors.map((c) => (
-                    <button
-                      key={c}
-                      onClick={() => setSelectedColor(c)}
-                      className={`px-4 py-2 rounded-full border text-xs md:text-sm font-medium transition-all ${
-                        selectedColor === c
-                          ? "border-foreground bg-foreground text-background"
-                          : "border-border text-foreground hover:border-foreground/80"
-                      }`}
-                    >
-                      {c}
-                    </button>
-                  ))}
-                </div>
+            {/* Short description */}
+            <p className="text-sm leading-relaxed text-neutral-600 max-w-prose">
+              {product.description}
+            </p>
+
+            {/* Color selector */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs">
+                <span className="uppercase tracking-[0.16em] text-neutral-700">
+                  Color
+                </span>
+                <span className="text-neutral-500">{selectedColor}</span>
               </div>
-
-              {/* Size selector */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs md:text-sm">
-                  <span className="font-semibold text-foreground">
-                    Size <span className="font-normal text-muted-foreground">/ {selectedSize}</span>
-                  </span>
-                  <Link href="#" className="text-xs text-primary hover:text-primary/80">
-                    Size Guide
-                  </Link>
-                </div>
-                <div className="flex gap-2 flex-wrap">
-                  {product.sizes.map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => setSelectedSize(s)}
-                      className={`w-10 h-10 md:w-11 md:h-11 rounded-lg border flex items-center justify-center text-xs md:text-sm font-semibold transition-all ${
-                        selectedSize === s
-                          ? "border-foreground bg-foreground text-background"
-                          : "border-border text-foreground hover:border-foreground/80"
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Quantity */}
-              <div className="space-y-3">
-                <span className="text-xs md:text-sm font-semibold text-foreground">Quantity</span>
-                <div className="flex items-center gap-3 w-fit">
+              <div className="flex gap-2 flex-wrap">
+                {product.colors.map((c) => (
                   <button
-                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <span className="w-8 text-center font-semibold text-sm md:text-base">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity((q) => q + 1)}
-                    className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Primary actions */}
-              <div className="space-y-3 pt-2">
-                <Button
-                  className="w-full h-11 md:h-12 rounded-full bg-foreground hover:bg-foreground/90 text-background text-xs md:text-sm font-semibold tracking-[0.18em] uppercase"
-                  onClick={() =>
-                    addItem({
-                      id: product.id,
-                      name: product.name,
-                      price: product.price,
-                      quantity,
-                      color: selectedColor,
-                      size: selectedSize,
-                      imageKey: product.baseKey,
-                    })
-                  }
-                >
-                  Add to Bag
-                </Button>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setIsFavorited((v) => !v)}
-                    className={`flex-1 h-11 rounded-full border-2 flex items-center justify-center gap-2 text-xs md:text-sm font-medium transition-all ${
-                      isFavorited
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border text-foreground hover:border-foreground"
+                    key={c}
+                    onClick={() => setSelectedColor(c)}
+                    className={`px-4 py-2 rounded-full border text-xs tracking-[0.14em] uppercase transition-all ${
+                      selectedColor === c
+                        ? "border-neutral-900 bg-neutral-900 text-white"
+                        : "border-neutral-300 text-neutral-800 hover:border-neutral-900"
                     }`}
                   >
-                    <Heart className={`w-4 h-4 ${isFavorited ? "fill-current" : ""}`} />
-                    Wishlist
+                    {c}
                   </button>
-                  <button className="flex-1 h-11 rounded-full border-2 border-border text-foreground hover:border-foreground flex items-center justify-center gap-2 text-xs md:text-sm font-medium transition-all">
-                    <Share2 className="w-4 h-4" />
-                    Share
-                  </button>
-                </div>
-              </div>
-
-              {/* Quick info */}
-              <div className="pt-4 border-t border-border/70 space-y-2 text-xs md:text-sm text-muted-foreground">
-                <div className="flex gap-2">
-                  <span className="text-primary shrink-0">✓</span>
-                  <span>1–3 day delivery within Nigeria</span>
-                </div>
-                <div className="flex gap-2">
-                  <span className="text-primary shrink-0">✓</span>
-                  <span>30-day return policy on unworn items</span>
-                </div>
-                <div className="flex gap-2">
-                  <span className="text-primary shrink-0">✓</span>
-                  <span>Secure payment processing</span>
-                </div>
+                ))}
               </div>
             </div>
 
-            {/* Product details block under card on desktop */}
-            <div className="mt-8 space-y-4 border-t border-border pt-6">
-              <h3 className="font-semibold text-foreground text-sm md:text-base">
-                Product Details
+            {/* Size selector */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs">
+                <span className="uppercase tracking-[0.16em] text-neutral-700">
+                  Size
+                </span>
+                <Link
+                  href="#"
+                  className="underline underline-offset-4 text-neutral-500 hover:text-neutral-900"
+                >
+                  Size guide
+                </Link>
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                {product.sizes.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setSelectedSize(s)}
+                    className={`w-10 h-10 rounded-none border text-xs tracking-[0.14em] uppercase transition-all ${
+                      selectedSize === s
+                        ? "border-neutral-900 bg-neutral-900 text-white"
+                        : "border-neutral-300 text-neutral-800 hover:border-neutral-900"
+                    }`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quantity */}
+            <div className="space-y-3">
+              <span className="text-xs uppercase tracking-[0.16em] text-neutral-700">
+                Quantity
+              </span>
+              <div className="flex items-center gap-3 w-fit border border-neutral-300 px-2 py-1">
+                <button
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  className="w-8 h-8 flex items-center justify-center hover:bg-neutral-100 transition-colors"
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                <span className="w-6 text-center text-sm">{quantity}</span>
+                <button
+                  onClick={() => setQuantity((q) => q + 1)}
+                  className="w-8 h-8 flex items-center justify-center hover:bg-neutral-100 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Primary actions */}
+            <div className="space-y-3">
+              <Button
+                className={`w-full h-11 md:h-12 rounded-none bg-neutral-900 text-white text-[11px] tracking-[0.2em] uppercase
+                  flex items-center justify-center gap-2 transition-transform duration-150
+                  ${isAdding ? "scale-[0.98]" : "hover:bg-black"}`}
+                onClick={handleAddToBag}
+              >
+                {isAdding ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Added to bag
+                  </>
+                ) : (
+                  <>Add to bag</>
+                )}
+              </Button>
+
+              <div className="flex gap-3 text-xs">
+                <button
+                  onClick={() => setIsFavorited((v) => !v)}
+                  className="flex-1 h-10 border border-neutral-300 rounded-none flex items-center justify-center gap-2 uppercase tracking-[0.16em] hover:border-neutral-900 transition-colors"
+                >
+                  <Heart className={`w-4 h-4 ${isFavorited ? "fill-neutral-900" : ""}`} />
+                  Wishlist
+                </button>
+                <button className="flex-1 h-10 border border-neutral-300 rounded-none flex items-center justify-center gap-2 uppercase tracking-[0.16em] hover:border-neutral-900 transition-colors">
+                  <Share2 className="w-4 h-4" />
+                  Share
+                </button>
+              </div>
+            </div>
+
+            {/* Product details */}
+            <div className="border-t border-neutral-200 pt-6 space-y-3 text-sm text-neutral-600">
+              <h3 className="text-xs uppercase tracking-[0.16em] text-neutral-700">
+                Product details
               </h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
+              <ul className="space-y-1.5">
                 {product.details.map((d, i) => (
-                  <li key={i} className="flex gap-3">
-                    <span className="text-primary">•</span>
-                    <span>{d}</span>
-                  </li>
+                  <li key={i}>{d}</li>
                 ))}
               </ul>
+              <div className="pt-3 space-y-1 text-xs text-neutral-500">
+                <p>3–5 business days delivery within Nigeria</p>
+                <p>30-day return policy on unworn items</p>
+                <p>Secure payment processing</p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* RELATED SECTION – keep it clean + shoppable */}
+        {/* RELATED */}
         {related.length > 0 && (
-          <div className="mt-16 border-t border-border pt-10 md:pt-12">
+          <div className="mt-16 border-t border-neutral-200 pt-10">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl md:text-2xl font-light text-foreground">
+              <h2 className="text-sm md:text-base uppercase tracking-[0.18em] text-neutral-700">
                 You may also like
               </h2>
               <Link
                 href="/shop"
-                className="text-xs md:text-sm uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground"
+                className="text-xs text-neutral-500 hover:text-neutral-900"
               >
                 View all
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-5 md:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
               {related.map((rp) => (
                 <Link key={rp.id} href={`/product/${rp.id}`} className="group">
-                  <div className="space-y-3">
-                    <div className="relative aspect-3/4 bg-muted rounded-xl overflow-hidden border border-border/60">
+                  <div className="space-y-2">
+                    <div className="aspect-[3/4] bg-white border border-neutral-200 overflow-hidden">
                       <img
-                        src={sbRender(rp.key, 400, 70)}
+                        src={sbRender(rp.key, 480, 70)}
                         alt={rp.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover group-hover:opacity-90 transition-opacity"
                         loading="lazy"
                         onError={(e) => {
                           const el = e.currentTarget as HTMLImageElement
@@ -474,31 +428,12 @@ export default function ProductPage() {
                         }}
                       />
                     </div>
-                    <div className="space-y-1">
-                      <h3 className="text-sm md:text-[15px] font-medium text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                        {rp.name}
-                      </h3>
-                      <p className="text-sm font-semibold text-primary">
-                        ₦{rp.price.toLocaleString()}
-                      </p>
-                    </div>
-                    <Button
-                      className="w-full h-9 rounded-full bg-foreground hover:bg-foreground/90 text-background text-[11px] md:text-xs tracking-[0.18em] uppercase"
-                      onClick={(e) => {
-                        e.preventDefault() // stay on this page
-                        addItem({
-                          id: rp.id,
-                          name: rp.name,
-                          price: rp.price,
-                          quantity: 1,
-                          color: "Black",
-                          size: "M",
-                          imageKey: rp.key,
-                        })
-                      }}
-                    >
-                      Add to Bag
-                    </Button>
+                    <p className="text-xs md:text-sm text-neutral-900 line-clamp-2">
+                      {rp.name}
+                    </p>
+                    <p className="text-xs text-neutral-700">
+                      ₦{rp.price.toLocaleString()}
+                    </p>
                   </div>
                 </Link>
               ))}

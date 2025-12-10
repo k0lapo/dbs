@@ -17,7 +17,7 @@ const allProducts = [
   { id: 6,  name: "DripBySoweto Club members Jersey",   price: "₦120,000", category: "tops",        image: "jersey" },
   { id: 7,  name: "DBS Crzy Armless",                   price: "₦50,000", category: "tops",        image: "JS1" },
   { id: 8,  name: "DBS Christ D Savior Crop armless",   price: "₦30,000", category: "tops",        image: "tank" },
-  { id: 9,  name: "DBS Double layer Jean",              price: "70,000", category: "bottoms",     image: "ascension front" },
+  { id: 9,  name: "DBS Double layer Jean",              price: "₦70,000", category: "bottoms",     image: "ascension front" },
   { id: 10, name: "DBS Ascension Shirt",                price: "₦100,000", category: "tops",        image: "ascension back" },
   { id: 11, name: "DripBySoweto Nylon Short",           price: "₨40,000".replace("₨","₦"), category: "bottoms",     image: "shorts" },
   { id: 12, name: "Soweto Arts Embroidery jorts",       price: "₦70,000", category: "bottoms",     image: "jean jorts" },
@@ -28,7 +28,8 @@ const allProducts = [
 
 /** ================== HELPERS (unchanged) ================== */
 const parseNairaToNumber = (p: string) => Number(p.replace(/[^\d]/g, "")) || 0
-const titleCase = (s: string) => s.replace(/\w\S*/g, (t) => t[0].toUpperCase() + t.slice(1).toLowerCase())
+const titleCase = (s: string) =>
+  s.replace(/\w\S*/g, (t) => t[0].toUpperCase() + t.slice(1).toLowerCase())
 
 const SB_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/\/+$/, "")
 
@@ -147,36 +148,20 @@ export default function ShopPage() {
     <main className="min-h-screen bg-background">
       <Navigation />
 
-      {/* LUXURY SHOP HERO */}
-      <section className="border-b border-border bg-black text-white">
-        <div className="max-w-7xl mx-auto px-6 sm:px-6 lg:px-8 py-10 md:py-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-          <div className="space-y-4">
-            <p className="text-[11px] tracking-[0.35em] uppercase text-white/40">
-              DBS STUDIO STORE
-            </p>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-light leading-tight tracking-tight">
-              Shop the Collection
+      {/* MAIN CONTENT — minimal, no big hero */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-12 pb-12 md:pb-16">
+        {/* subtle heading row */}
+        <div className="flex items-end justify-between mb-6 md:mb-8">
+          <div>
+            <h1 className="text-xl md:text-2xl font-light tracking-[0.16em] uppercase text-foreground">
+              Shop
             </h1>
-            <p className="text-sm md:text-base text-white/70 max-w-xl leading-relaxed">
-              Curated drops in limited runs. Built for everyday luxury and street performance — crafted to move with you.
+            <p className="text-xs md:text-sm text-muted-foreground mt-2">
+              Curated pieces from DripBySoweto.
             </p>
-          </div>
-
-          <div className="flex flex-col items-start md:items-end gap-3 text-xs md:text-sm text-white/60">
-            <div className="flex items-center gap-2">
-              <span className="h-px w-6 bg-white/30" />
-              <span>3-5 days delivery within Nigeria</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-px w-6 bg-white/30" />
-              <span>Secure checkout</span>
-            </div>
           </div>
         </div>
-      </section>
 
-      {/* MAIN CONTENT */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
         <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-10 lg:gap-12">
           {/* DESKTOP FILTER SIDEBAR */}
           <aside className="hidden lg:block sticky top-24 self-start space-y-6">
@@ -242,7 +227,6 @@ export default function ShopPage() {
               </div>
             </div>
 
-            {/* Small note */}
             <p className="text-xs text-muted-foreground leading-relaxed">
               All DBS pieces are produced with a focus on structure, fabric and longevity. Limited quantities per drop.
             </p>
@@ -295,10 +279,7 @@ export default function ShopPage() {
                     {CATEGORIES.map((cat) => (
                       <button
                         key={cat}
-                        onClick={() => {
-                          setSelectedCategory(cat)
-                          // keep filters open or close? we'll keep open
-                        }}
+                        onClick={() => setSelectedCategory(cat)}
                         className={`px-3 py-1.5 rounded-full text-xs transition-all ${
                           selectedCategory === cat
                             ? "bg-foreground text-background"
@@ -360,7 +341,6 @@ export default function ShopPage() {
                   return (
                     <Link key={product.id} href={`/product/${product.id}`} className="group">
                       <article className="flex flex-col gap-3 md:gap-4 rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm p-3 sm:p-4 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(0,0,0,0.18)] transition-all duration-300">
-                        {/* Image */}
                         <div className="relative aspect-3/4 bg-muted rounded-xl overflow-hidden">
                           <img
                             src={src600}
@@ -374,13 +354,11 @@ export default function ShopPage() {
                             data-mode="render"
                             onError={handleImgError}
                           />
-                          {/* subtle label */}
                           <div className="absolute left-3 top-3 px-2 py-1 rounded-full bg-black/60 text-[10px] uppercase tracking-[0.18em] text-white/80">
                             New Drop
                           </div>
                         </div>
 
-                        {/* Info */}
                         <div className="space-y-1">
                           <p className="text-[11px] tracking-[0.22em] uppercase text-muted-foreground">
                             {product.category}
@@ -403,7 +381,6 @@ export default function ShopPage() {
                           </div>
                         </div>
 
-                        {/* CTA */}
                         <Button
                           className="
                             w-full h-10 
@@ -423,7 +400,9 @@ export default function ShopPage() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <p className="text-lg text-muted-foreground">No products found in this selection.</p>
+                <p className="text-lg text-muted-foreground">
+                  No products found in this selection.
+                </p>
                 <button
                   onClick={() => {
                     setSelectedCategory("All")
