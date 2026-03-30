@@ -5,9 +5,9 @@ import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Sliders } from "lucide-react"
+import { Sliders, ArrowRight, ChevronDown } from "lucide-react"
 
-/** ================== DATA (unchanged) ================== */
+/** ================== DATA & HELPERS (unchanged per instructions) ================== */
 const allProducts = [
   { id: 1,  name: "DBS Sublimated Tracksuits",          price: "₦170,000", category: "tracksuits",  image: "track" },
   { id: 2,  name: "DBS Nylon Tracksuits",               price: "₦170,000", category: "tracksuits",  image: "sets" },
@@ -19,94 +19,43 @@ const allProducts = [
   { id: 8,  name: "DBS Christ D Savior Crop armless",   price: "₦30,000", category: "tops",        image: "tank" },
   { id: 9,  name: "DBS Double layer Jean",              price: "₦70,000", category: "bottoms",     image: "ascension front" },
   { id: 10, name: "DBS Ascension Shirt",                price: "₦100,000", category: "tops",        image: "ascension back" },
-  { id: 11, name: "DripBySoweto Nylon Short",           price: "₨40,000".replace("₨","₦"), category: "bottoms",     image: "shorts" },
+  { id: 11, name: "DripBySoweto Nylon Short",           price: "₦40,000", category: "bottoms",     image: "shorts" },
   { id: 12, name: "Soweto Arts Embroidery jorts",       price: "₦70,000", category: "bottoms",     image: "jean jorts" },
   { id: 13, name: "DBS Embroidered Suede Hat",          price: "₦100,000", category: "accessories", image: "suedehat" },
   { id: 14, name: "DBS embroidered Leather/Jean SnapBack", price: "₦80,000", category: "accessories", image: "jean snapback" },
   { id: 15, name: "DBS Two Piece Hoodie",               price: "₦120,000", category: "tracksuits",  image: "2piece hoodie" },
 ]
 
-/** ================== HELPERS (unchanged) ================== */
 const parseNairaToNumber = (p: string) => Number(p.replace(/[^\d]/g, "")) || 0
-const titleCase = (s: string) =>
-  s.replace(/\w\S*/g, (t) => t[0].toUpperCase() + t.slice(1).toLowerCase())
-
+const titleCase = (s: string) => s.replace(/\w\S*/g, (t) => t[0].toUpperCase() + t.slice(1).toLowerCase())
 const SB_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/\/+$/, "")
-
 const encodePath = (path: string) => path.split("/").map(encodeURIComponent).join("/")
-
-const sbRender = (key: string, width = 600, quality = 70) =>
-  `${SB_URL}/storage/v1/render/image/public/product-images/${encodePath(key)}?width=${width}&quality=${quality}&format=webp`
-
-const sbObject = (key: string) =>
-  `${SB_URL}/storage/v1/object/public/product-images/${encodePath(key)}`
-
-const buildCandidateKeys = (baseNoExt: string) => [
-  `${baseNoExt}.jpg`,
-  `${baseNoExt}.jpeg`,
-  `${baseNoExt}.png`,
-]
-
+const sbRender = (key: string, width = 600, quality = 70) => `${SB_URL}/storage/v1/render/image/public/product-images/${encodePath(key)}?width=${width}&quality=${quality}&format=webp`
+const sbObject = (key: string) => `${SB_URL}/storage/v1/object/public/product-images/${encodePath(key)}`
+const buildCandidateKeys = (baseNoExt: string) => [`${baseNoExt}.jpg`, `${baseNoExt}.jpeg`, `${baseNoExt}.png`]
 const buildImgSources = (key: string) => {
-  const src400 = sbRender(key, 400, 70)
-  const src600 = sbRender(key, 600, 70)
-  const src800 = sbRender(key, 800, 75)
-  const srcSet = `${src400} 400w, ${src600} 600w, ${src800} 800w`
-  return { src400, src600, src800, srcSet }
+  const src400 = sbRender(key, 400, 70); const src600 = sbRender(key, 600, 70); const src800 = sbRender(key, 800, 75)
+  return { src400, src600, src800, srcSet: `${src400} 400w, ${src600} 600w, ${src800} 800w` }
 }
-
 const handleImgError: React.ReactEventHandler<HTMLImageElement> = (e) => {
   const el = e.currentTarget as HTMLImageElement & { dataset: any }
-
   try {
     const candidates: string[] = JSON.parse(el.dataset.candidates || "[]")
-    let idx = Number(el.dataset.idx || "0")
-    let mode = el.dataset.mode || "render"
-
-    console.warn("[IMG Fallback] Failed:", el.src, "mode:", mode, "candidate:", candidates[idx])
-
-    if (mode === "render") {
-      el.dataset.mode = "raw"
-      el.src = sbObject(candidates[idx])
-      el.srcset = ""
-      return
-    }
-
+    let idx = Number(el.dataset.idx || "0"); let mode = el.dataset.mode || "render"
+    if (mode === "render") { el.dataset.mode = "raw"; el.src = sbObject(candidates[idx]); el.srcset = ""; return }
     idx += 1
     if (idx < candidates.length) {
-      el.dataset.idx = String(idx)
-      el.dataset.mode = "render"
-      const nextKey = candidates[idx]
-      const { src600, srcSet } = buildImgSources(nextKey)
-      el.src = src600
-      el.srcset = srcSet
-      return
+      el.dataset.idx = String(idx); el.dataset.mode = "render"
+      const { src600, srcSet } = buildImgSources(candidates[idx]); el.src = src600; el.srcset = srcSet; return
     }
-
-    el.src = `https://source.unsplash.com/400x400/?streetwear,apparel`
-    el.srcset = ""
-  } catch (err) {
-    console.error("[IMG Fallback] handler error:", err)
-    el.src = `https://source.unsplash.com/400x400/?streetwear,apparel`
-    el.srcset = ""
-  }
+    el.src = `https://images.unsplash.com/photo-1552664199-fd31f7431a55?q=80&w=400&h=400&auto=format&fit=crop`
+  } catch (err) { el.src = `https://images.unsplash.com/photo-1552664199-fd31f7431a55?q=80&w=400&h=400&auto=format&fit=crop` }
 }
 
-const PRODUCTS = allProducts.map((p, i) => {
-  const priceNum = parseNairaToNumber(p.price)
-  const categoryTC = titleCase(p.category)
-  const baseNoExt = `products/${p.image}`
-
-  return {
-    id: p.id,
-    name: p.name,
-    category: categoryTC,
-    price: priceNum,
-    baseNoExt,
-    rating: 5,
-    reviews: 10 + (i % 25),
-  }
-})
+const PRODUCTS = allProducts.map((p, i) => ({
+  id: p.id, name: p.name, category: titleCase(p.category), price: parseNairaToNumber(p.price),
+  baseNoExt: `products/${p.image}`, rating: 5, reviews: 10 + (i % 25),
+}))
 
 const CATEGORIES = ["All", "Tracksuits", "Tops", "Bottoms", "Accessories"]
 const PRICE_RANGES = [
@@ -125,296 +74,189 @@ export default function ShopPage() {
 
   const filteredProducts = useMemo(() => {
     let filtered = PRODUCTS
-
-    if (selectedCategory !== "All") {
-      filtered = filtered.filter((p) => p.category === selectedCategory)
-    }
-
+    if (selectedCategory !== "All") filtered = filtered.filter((p) => p.category === selectedCategory)
     const priceRange = PRICE_RANGES[selectedPriceRange]
     filtered = filtered.filter((p) => p.price >= priceRange.min && p.price <= priceRange.max)
-
-    if (sortBy === "price-low") {
-      filtered = [...filtered].sort((a, b) => a.price - b.price)
-    } else if (sortBy === "price-high") {
-      filtered = [...filtered].sort((a, b) => b.price - a.price)
-    } else if (sortBy === "newest") {
-      filtered = [...filtered].reverse()
-    }
-
+    if (sortBy === "price-low") filtered = [...filtered].sort((a, b) => a.price - b.price)
+    else if (sortBy === "price-high") filtered = [...filtered].sort((a, b) => b.price - a.price)
+    else if (sortBy === "newest") filtered = [...filtered].reverse()
     return filtered
   }, [selectedCategory, selectedPriceRange, sortBy])
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-[#fafafa] dark:bg-[#0a0a0a] selection:bg-black selection:text-white">
       <Navigation />
 
-      {/* MAIN CONTENT — minimal, no big hero */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-12 pb-12 md:pb-16">
-        {/* subtle heading row */}
-        <div className="flex items-end justify-between mb-6 md:mb-8">
-          <div>
-            <h1 className="text-xl md:text-2xl font-light tracking-[0.16em] uppercase text-foreground">
-              Shop
-            </h1>
-            <p className="text-xs md:text-sm text-muted-foreground mt-2">
-              Curated pieces from DripBySoweto.
-            </p>
-          </div>
-        </div>
+      <div className="max-w-[1440px] mx-auto px-6 lg:px-12 pt-12 pb-24">
+        {/* HEADER SECTION */}
+        <header className="mb-16 space-y-4">
+          
+          <h1 className="text-4xl md:text-6xl font-extralight pt-8 tracking-tighter text-foreground uppercase italic">
+            Collections<span className="not-italic font-normal">.</span>
+          </h1>
+          <div className="h-[1px] w-full bg-gradient-to-r from-border via-border/40 to-transparent" />
+        </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-10 lg:gap-12">
-          {/* DESKTOP FILTER SIDEBAR */}
-          <aside className="hidden lg:block sticky top-24 self-start space-y-6">
-            <div className="bg-card/60 backdrop-blur border border-border/70 rounded-2xl p-5 space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-[11px] tracking-[0.3em] uppercase text-muted-foreground">
-                  Filter
-                </h3>
-                <button
-                  onClick={() => {
-                    setSelectedCategory("All")
-                    setSelectedPriceRange(0)
-                    setSortBy("newest")
-                  }}
-                  className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground"
-                >
-                  Reset
-                </button>
-              </div>
-
-              {/* Categories */}
-              <div className="space-y-3">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-[0.18em]">
-                  Category
-                </p>
-                <div className="space-y-1.5">
-                  {CATEGORIES.map((cat) => (
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-16">
+          {/* SIDEBAR */}
+          <aside className="hidden lg:block sticky top-32 self-start h-fit space-y-12">
+            {/* Categories */}
+            <section className="space-y-6">
+              <h3 className="text-[11px] font-bold tracking-[0.2em] uppercase text-foreground/40">Categories</h3>
+              <ul className="space-y-4">
+                {CATEGORIES.map((cat) => (
+                  <li key={cat}>
                     <button
-                      key={cat}
                       onClick={() => setSelectedCategory(cat)}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
-                        selectedCategory === cat
-                          ? "bg-foreground text-background font-medium"
-                          : "text-foreground/80 hover:bg-muted"
+                      className={`group flex items-center gap-3 text-sm transition-all duration-300 ${
+                        selectedCategory === cat ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
+                      <span className={`h-[1px] transition-all duration-500 bg-foreground ${selectedCategory === cat ? "w-6" : "w-0 group-hover:w-4"}`} />
                       {cat}
                     </button>
-                  ))}
-                </div>
-              </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
 
-              {/* Price */}
-              <div className="space-y-3 border-t border-border/70 pt-4">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-[0.18em]">
-                  Price
-                </p>
-                <div className="space-y-1.5">
-                  {PRICE_RANGES.map((range, idx) => (
-                    <button
-                      key={range.label}
-                      onClick={() => setSelectedPriceRange(idx)}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
-                        selectedPriceRange === idx
-                          ? "bg-muted text-foreground font-medium"
-                          : "text-foreground/80 hover:bg-muted/70"
-                      }`}
-                    >
-                      {range.label}
-                    </button>
-                  ))}
-                </div>
+            {/* Price Filter */}
+            <section className="space-y-6 pt-6 border-t border-border/40">
+              <h3 className="text-[11px] font-bold tracking-[0.2em] uppercase text-foreground/40">Price Range</h3>
+              <div className="flex flex-col gap-3">
+                {PRICE_RANGES.map((range, idx) => (
+                  <button
+                    key={range.label}
+                    onClick={() => setSelectedPriceRange(idx)}
+                    className={`text-left text-xs py-1 transition-colors ${
+                      selectedPriceRange === idx ? "text-foreground font-semibold underline underline-offset-8" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {range.label}
+                  </button>
+                ))}
               </div>
+            </section>
+            
+            <div className="p-6 bg-muted/30 rounded-3xl border border-border/50">
+              <p className="text-[11px] leading-relaxed text-muted-foreground uppercase tracking-widest">
+                DBS Essentials.
+              </p>
             </div>
-
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              All DBS pieces are produced with a focus on structure, fabric and longevity. Limited quantities per drop.
-            </p>
           </aside>
 
-          {/* PRODUCTS + MOBILE CONTROLS */}
-          <div className="space-y-6 md:space-y-8">
-            {/* TOP CONTROLS */}
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              {/* Mobile Filters */}
-              <div className="flex items-center gap-3 w-full md:w-auto">
+          {/* MAIN GRID */}
+          <section className="space-y-8">
+            {/* CONTROLS */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-border/40">
+              <div className="flex items-center gap-4">
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className="lg:hidden flex items-center gap-2 px-4 py-2 border border-border rounded-full text-xs uppercase tracking-[0.18em] text-foreground hover:bg-muted transition-colors"
+                  className="lg:hidden flex items-center gap-2 px-5 py-2.5 bg-foreground text-background rounded-full text-[10px] uppercase font-bold tracking-widest"
                 >
-                  <Sliders className="w-4 h-4" />
+                  <Sliders className="w-3.5 h-3.5" />
                   Filters
                 </button>
-
-                <p className="text-xs md:text-sm text-muted-foreground">
-                  {filteredProducts.length} styles
-                </p>
+                <span className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground font-medium">
+                  Showing {filteredProducts.length} Results
+                </span>
               </div>
 
-              {/* Sort */}
-              <div className="flex items-center gap-2 ml-auto">
-                <span className="text-xs text-muted-foreground uppercase tracking-[0.18em]">
-                  Sort
-                </span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="px-3 py-2 border border-border rounded-full bg-background text-foreground text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-primary/60"
-                >
-                  <option value="newest">Newest</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                </select>
+              <div className="flex items-center gap-3 self-end sm:self-auto">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold">Sort By</span>
+                <div className="relative group">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="appearance-none bg-transparent pl-2 pr-8 py-1 text-xs font-semibold uppercase tracking-widest focus:outline-none cursor-pointer"
+                  >
+                    <option value="newest">Newest First</option>
+                    <option value="price-low">Price: Low</option>
+                    <option value="price-high">Price: High</option>
+                  </select>
+                  <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none text-muted-foreground" />
+                </div>
               </div>
             </div>
 
-            {/* MOBILE FILTER PANEL */}
-            {showFilters && (
-              <div className="lg:hidden border border-border rounded-2xl bg-card/70 backdrop-blur p-4 space-y-5">
-                <div className="space-y-3">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-[0.18em]">
-                    Category
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {CATEGORIES.map((cat) => (
-                      <button
-                        key={cat}
-                        onClick={() => setSelectedCategory(cat)}
-                        className={`px-3 py-1.5 rounded-full text-xs transition-all ${
-                          selectedCategory === cat
-                            ? "bg-foreground text-background"
-                            : "border border-border text-foreground hover:bg-muted/60"
-                        }`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-3 border-t border-border/70 pt-4">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-[0.18em]">
-                    Price
-                  </p>
-                  <div className="flex flex-col gap-1.5">
-                    {PRICE_RANGES.map((range, idx) => (
-                      <button
-                        key={range.label}
-                        onClick={() => setSelectedPriceRange(idx)}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all ${
-                          selectedPriceRange === idx
-                            ? "bg-muted text-foreground font-medium"
-                            : "text-foreground/80 hover:bg-muted/70"
-                        }`}
-                      >
-                        {range.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="pt-2">
-                  <button
-                    onClick={() => {
-                      setSelectedCategory("All")
-                      setSelectedPriceRange(0)
-                      setSortBy("newest")
-                    }}
-                    className="w-full text-center text-[11px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
-                  >
-                    Reset filters
-                  </button>
-                </div>
-              </div>
-            )}
-
             {/* PRODUCT GRID */}
-            {filteredProducts.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-                {filteredProducts.map((product) => {
-                  if (!SB_URL) {
-                    console.warn("NEXT_PUBLIC_SUPABASE_URL is missing. Using placeholders.")
-                  }
-                  const candidates = buildCandidateKeys(product.baseNoExt)
-                  const { src600, srcSet } = buildImgSources(candidates[0])
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-16">
+              {filteredProducts.map((product) => {
+                const candidates = buildCandidateKeys(product.baseNoExt)
+                const { src600, srcSet } = buildImgSources(candidates[0])
 
-                  return (
-                    <Link key={product.id} href={`/product/${product.id}`} className="group">
-                      <article className="flex flex-col gap-3 md:gap-4 rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm p-3 sm:p-4 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(0,0,0,0.18)] transition-all duration-300">
-                        <div className="relative aspect-3/4 bg-muted rounded-xl overflow-hidden">
-                          <img
-                            src={src600}
-                            srcSet={srcSet}
-                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 320px"
-                            alt={product.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            loading="lazy"
-                            data-candidates={JSON.stringify(candidates)}
-                            data-idx="0"
-                            data-mode="render"
-                            onError={handleImgError}
-                          />
-                          <div className="absolute left-3 top-3 px-2 py-1 rounded-full bg-black/60 text-[10px] uppercase tracking-[0.18em] text-white/80">
-                            New Drop
+                return (
+                  <Link key={product.id} href={`/product/${product.id}`} className="group relative block">
+                    <div className="space-y-5">
+                      {/* Image Container */}
+                      <div className="relative aspect-[4/5] overflow-hidden bg-[#f2f2f2] dark:bg-[#151515] rounded-[2rem]">
+                        <img
+                          src={src600}
+                          srcSet={srcSet}
+                          alt={product.name}
+                          className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700 ease-out"
+                          loading="lazy"
+                          data-candidates={JSON.stringify(candidates)}
+                          data-idx="0"
+                          data-mode="render"
+                          onError={handleImgError}
+                        />
+                        <div className="absolute top-4 left-4">
+                           <span className="px-3 py-1.5 backdrop-blur-md bg-black/50 border border-white/20 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] text-white">
+                            DBS Official
+                           </span>
+                        </div>
+                        {/* Hover Overlay */}
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                          <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                             <span className="bg-white text-black px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-tighter flex items-center gap-2">
+                               Quick View <ArrowRight className="w-3 h-3" />
+                             </span>
                           </div>
                         </div>
+                      </div>
 
-                        <div className="space-y-1">
-                          <p className="text-[11px] tracking-[0.22em] uppercase text-muted-foreground">
-                            {product.category}
-                          </p>
-                          <h3 className="text-sm md:text-base font-medium text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                            {product.name}
-                          </h3>
-                          <div className="flex items-center justify-between pt-1">
-                            <p className="text-sm md:text-base font-semibold text-primary">
-                              ₦{product.price.toLocaleString()}
+                      {/* Info */}
+                      <div className="px-1 space-y-2">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold mb-1">
+                              {product.category}
                             </p>
-                            <div className="flex items-center gap-1">
-                              <span className="text-[11px] text-muted-foreground">
-                                ★ {product.rating}.0
-                              </span>
-                              <span className="text-[11px] text-muted-foreground/70">
-                                ({product.reviews})
-                              </span>
-                            </div>
+                            <h3 className="text-sm md:text-base font-medium tracking-tight text-foreground line-clamp-1">
+                              {product.name}
+                            </h3>
                           </div>
                         </div>
+                        <div className="flex items-center justify-between pt-2">
+                           <p className="text-lg font-light tracking-tighter">
+                            ₦{product.price.toLocaleString()}
+                          </p>
+                          <div className="flex items-center gap-1.5 opacity-60">
+                            <span className="text-[10px] font-bold">★ {product.rating}.0</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
 
-                        <Button
-                          className="
-                            w-full h-10 
-                            bg-foreground text-background 
-                            hover:bg-foreground/90 
-                            text-xs md:text-sm 
-                            rounded-full 
-                            font-medium tracking-[0.12em] uppercase
-                          "
-                        >
-                          View Options
-                        </Button>
-                      </article>
-                    </Link>
-                  )
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <p className="text-lg text-muted-foreground">
-                  No products found in this selection.
-                </p>
-                <button
-                  onClick={() => {
-                    setSelectedCategory("All")
-                    setSelectedPriceRange(0)
-                  }}
-                  className="mt-4 text-primary hover:text-primary/80 font-medium text-sm"
+            {/* EMPTY STATE */}
+            {filteredProducts.length === 0 && (
+              <div className="text-center py-40 space-y-6">
+                <p className="text-sm uppercase tracking-widest text-muted-foreground italic">No pieces found in this vault.</p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => { setSelectedCategory("All"); setSelectedPriceRange(0); }}
+                  className="rounded-full px-8 border-foreground/20 uppercase text-[10px] tracking-widest font-bold"
                 >
-                  Clear filters
-                </button>
+                  Reset Curation
+                </Button>
               </div>
             )}
-          </div>
+          </section>
         </div>
       </div>
 

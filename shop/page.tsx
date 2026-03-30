@@ -9,7 +9,7 @@ import { Sliders } from "lucide-react"
 
 /** ================== DATA (unchanged) ================== */
 const allProducts = [
-  { id: 1,  name: "DBS Sublimated Tracksuits",          price: "₦170,000", category: "tracksuits",  image: "track" },
+  { id: 1,  name: "DBS Sublimated Tracksuits",          price: "₦50", category: "tracksuits",  image: "track" },
   { id: 2,  name: "DBS Nylon Tracksuits",               price: "₦170,000", category: "tracksuits",  image: "sets" },
   { id: 3,  name: "DBS Christ De Savior T-shirt",       price: "₦100,000", category: "tops",        image: "dbs shirt white" },
   { id: 4,  name: "DBS raglan CropTop for ladies",      price: "₦50,000", category: "tops",        image: "raglan" },
