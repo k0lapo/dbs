@@ -77,7 +77,7 @@ export default function Navigation() {
                 onChange={(e) =>
                   setCurrency(e.target.value as "NGN" | "USD" | "CAD" | "GBP")
                 }
-                className="bg-transparent text-[11px] md:text-xs tracking-[0.2em] uppercase text-foreground/80 border border-border/60 rounded-full px-3 py-1 pr-7 appearance-none cursor-pointer"
+                className="bg-transparent text-[14px] md:text-xs tracking-[0.2em] uppercase text-foreground/80 border border-border/60 rounded-full px-3 py-1 pr-7 appearance-none cursor-pointer"
               >
                 {currencyOptions.map((cur) => (
                   <option
@@ -155,7 +155,7 @@ export default function Navigation() {
                 onChange={(e) =>
                   setCurrency(e.target.value as "NGN" | "USD" | "CAD" | "GBP")
                 }
-                className="w-full bg-transparent text-[11px] tracking-[0.24em] uppercase text-foreground/80 border border-border/70 rounded-full px-3 py-2 appearance-none cursor-pointer"
+                className="w-full bg-transparent text-[14px] tracking-[0.24em] uppercase text-foreground/80 border border-border/70 rounded-full px-3 py-2 appearance-none cursor-pointer"
               >
                 {currencyOptions.map((cur) => (
                   <option
@@ -188,7 +188,7 @@ export default function Navigation() {
             </div>
 
             {/* Divider + brand info */}
-            <div className="pt-4 border-t border-border/60 space-y-2 text-[11px] leading-relaxed text-muted-foreground">
+            <div className="pt-4 border-t border-border/60 space-y-2 text-[14px] leading-relaxed text-muted-foreground">
               <p className="uppercase tracking-[0.3em] text-foreground/80">
                 DBS Studio
               </p>

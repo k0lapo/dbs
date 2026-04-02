@@ -20,13 +20,82 @@ const allProducts = [
   { id: 7,  name: "DBS Crzy Armless",                   price: "₦50,000", category: "tops",        image: "JS1" },
   { id: 8,  name: "DBS Christ D Savior Crop armless",   price: "₦30,000", category: "tops",        image: "tank" },
   { id: 9,  name: "DBS Double layer Jean",              price: "₦70,000", category: "bottoms",     image: "ascension front" },
-  { id: 10, name: "DBS Ascension Shirt",                price: "₦100,000", category: "tops",       image: "ascension back" },
+  { id: 10, name: "DBS Ascension Shirt",                price: "₦100,000", category: "tops",        image: "ascension back" },
   { id: 11, name: "DripBySoweto Nylon Short",           price: "₦40,000", category: "bottoms",     image: "shorts" },
   { id: 12, name: "Soweto Arts Embroidery jorts",       price: "₦70,000", category: "bottoms",     image: "jean jorts" },
-  { id: 13, name: "DBS Embroidered Suede Hat",          price: "₦100,000", category: "accessories", image: "suedehat" },
+  { id: 13, name: "DBS Corduroy Hat",          price: "₦120,000", category: "accessories", image: "suedehat" },
   { id: 14, name: "DBS embroidered Leather/Jean SnapBack", price: "₦80,000", category: "accessories", image: "jean snapback" },
   { id: 15, name: "DBS Two Piece Hoodie",               price: "₦120,000", category: "tracksuits",  image: "2piece hoodie" },
+  
+  /* --- NEW DROPS ADDED BELOW --- */
+  
+  { 
+    id: 16, 
+    name: "DBS Tailored Jersey", 
+    price: "₦100,000", // PLACEHOLDER PRICE
+    category: "tops", 
+    image: "tailored-jersey" // PLACEHOLDER IMAGE SLUG
+  },
+  { 
+    id: 17, 
+    name: "DBS Tailored Pattern Crop Shirt", 
+    price: "₦70,000", // PLACEHOLDER PRICE
+    category: "tops", 
+    image: "pattern-shirt" // PLACEHOLDER IMAGE SLUG
+  },
+  { 
+    id: 18, 
+    name: "DBS Collared Polo", 
+    price: "₦180,000", // PLACEHOLDER PRICE
+    category: "tops", 
+    image: "collared-polo" // PLACEHOLDER IMAGE SLUG
+  },
+  { id: 19, name: "DBS Blade Shirt", price: "₦75,000", category: "tops", image: "dbs-blade" },
+  { 
+    id: 21, 
+    name: "Soweto Embroidered Denim Set", 
+    price: "₦280,000", // PLACEHOLDER PRICE
+    category: "tracksuits", // Categorized as tracksuits/sets
+    image: "denim-set" // PLACEHOLDER IMAGE SLUG
+  },
+  { 
+    id: 22, 
+    name: "DBS Patched Embroidered Leather Jacket", 
+    price: "₦200,000", // PLACEHOLDER PRICE
+    category: "tops", 
+    image: "varsity-jacket" // PLACEHOLDER IMAGE SLUG
+  },
+  { 
+    id: 23, 
+    name: "DBS Quarter Jort Denim", 
+    price: "₦120,000", // PLACEHOLDER PRICE
+    category: "bottoms", 
+    image: "quarter-jorts" // PLACEHOLDER IMAGE SLUG
+  },
+  { 
+    id: 24, 
+    name: "Soweto Sweat Stripes", 
+    price: "₦140,000", // PLACEHOLDER PRICE
+    category: "tops", 
+    image: "sweat-stripes" // PLACEHOLDER IMAGE SLUG
+  },
+  { 
+    id: 25, 
+    name: "DBS Fabric Jumper Jacket", 
+    price: "₦109,000", // PLACEHOLDER PRICE
+    category: "tops", 
+    image: "fabric-jumper" // PLACEHOLDER IMAGE SLUG
+  },
+  { 
+    id: 26, 
+    name: "DBS Stone Flair Pant Joggers", 
+    price: "₦100,000", // PLACEHOLDER PRICE
+    category: "bottoms", 
+    image: "stone-flair" // PLACEHOLDER IMAGE SLUG
+  }
 ]
+
+
 
 /** ================== IMAGE HELPERS ================== */
 const SB_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/\/+$/, "")
@@ -208,7 +277,7 @@ export default function ProductPage() {
                 </div>
                 <Button
                   onClick={handleAddToBag}
-                  className={`flex-1 h-14 rounded-2xl text-[11px] font-bold uppercase tracking-[0.2em] transition-all duration-500 ${
+                  className={`flex-1 h-14 rounded-2xl text-[14px] font-bold uppercase tracking-[0.2em] transition-all duration-500 ${
                     isAdding ? "bg-green-600 hover:bg-green-600 scale-95" : "bg-black hover:bg-black/90"
                   }`}
                 >

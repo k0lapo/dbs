@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Sliders, ArrowRight, ChevronDown } from "lucide-react"
 
-/** ================== DATA & HELPERS (unchanged per instructions) ================== */
 const allProducts = [
   { id: 1,  name: "DBS Sublimated Tracksuits",          price: "₦170,000", category: "tracksuits",  image: "track" },
   { id: 2,  name: "DBS Nylon Tracksuits",               price: "₦170,000", category: "tracksuits",  image: "sets" },
@@ -21,9 +20,76 @@ const allProducts = [
   { id: 10, name: "DBS Ascension Shirt",                price: "₦100,000", category: "tops",        image: "ascension back" },
   { id: 11, name: "DripBySoweto Nylon Short",           price: "₦40,000", category: "bottoms",     image: "shorts" },
   { id: 12, name: "Soweto Arts Embroidery jorts",       price: "₦70,000", category: "bottoms",     image: "jean jorts" },
-  { id: 13, name: "DBS Embroidered Suede Hat",          price: "₦100,000", category: "accessories", image: "suedehat" },
+  { id: 13, name: "DBS Corduroy Hat",          price: "₦120,000", category: "accessories", image: "suedehat" },
   { id: 14, name: "DBS embroidered Leather/Jean SnapBack", price: "₦80,000", category: "accessories", image: "jean snapback" },
   { id: 15, name: "DBS Two Piece Hoodie",               price: "₦120,000", category: "tracksuits",  image: "2piece hoodie" },
+  
+  /* --- NEW DROPS ADDED BELOW --- */
+  
+  { 
+    id: 16, 
+    name: "DBS Tailored Jersey", 
+    price: "₦100,000", // PLACEHOLDER PRICE
+    category: "tops", 
+    image: "tailored-jersey" // PLACEHOLDER IMAGE SLUG
+  },
+  { 
+    id: 17, 
+    name: "DBS Tailored Pattern Crop Shirt", 
+    price: "₦70,000", // PLACEHOLDER PRICE
+    category: "tops", 
+    image: "pattern-shirt" // PLACEHOLDER IMAGE SLUG
+  },
+  { 
+    id: 18, 
+    name: "DBS Collared Polo", 
+    price: "₦180,000", // PLACEHOLDER PRICE
+    category: "tops", 
+    image: "collared-polo" // PLACEHOLDER IMAGE SLUG
+  },
+  { id: 19, name: "DBS Blade Shirt", price: "₦75,000", category: "tops", image: "dbs-blade" },
+  { 
+    id: 21, 
+    name: "Soweto Embroidered Denim Set", 
+    price: "₦280,000", // PLACEHOLDER PRICE
+    category: "tracksuits", // Categorized as tracksuits/sets
+    image: "denim-set" // PLACEHOLDER IMAGE SLUG
+  },
+  { 
+    id: 22, 
+    name: "DBS Patched Embroidered Leather Jacket", 
+    price: "₦200,000", // PLACEHOLDER PRICE
+    category: "tops", 
+    image: "jumper-jacket" // PLACEHOLDER IMAGE SLUG
+  },
+  { 
+    id: 23, 
+    name: "DBS Quarter Jort Denim", 
+    price: "₦120,000", // PLACEHOLDER PRICE
+    category: "bottoms", 
+    image: "quarter-jorts" // PLACEHOLDER IMAGE SLUG
+  },
+  { 
+    id: 24, 
+    name: "Soweto Sweat Stripes", 
+    price: "₦140,000", // PLACEHOLDER PRICE
+    category: "tops", 
+    image: "varsity-jacket" // PLACEHOLDER IMAGE SLUG
+  },
+  { 
+    id: 25, 
+    name: "DBS Fabric Jumper Jacket", 
+    price: "₦109,000", // PLACEHOLDER PRICE
+    category: "tops", 
+    image: "fabric-jumper" // PLACEHOLDER IMAGE SLUG
+  },
+  { 
+    id: 26, 
+    name: "DBS Stone Flair Pant Joggers", 
+    price: "₦100,000", // PLACEHOLDER PRICE
+    category: "bottoms", 
+    image: "stone-flair" // PLACEHOLDER IMAGE SLUG
+  }
 ]
 
 const parseNairaToNumber = (p: string) => Number(p.replace(/[^\d]/g, "")) || 0
@@ -37,6 +103,7 @@ const buildImgSources = (key: string) => {
   const src400 = sbRender(key, 400, 70); const src600 = sbRender(key, 600, 70); const src800 = sbRender(key, 800, 75)
   return { src400, src600, src800, srcSet: `${src400} 400w, ${src600} 600w, ${src800} 800w` }
 }
+
 const handleImgError: React.ReactEventHandler<HTMLImageElement> = (e) => {
   const el = e.currentTarget as HTMLImageElement & { dataset: any }
   try {
@@ -87,22 +154,20 @@ export default function ShopPage() {
     <main className="min-h-screen bg-[#fafafa] dark:bg-[#0a0a0a] selection:bg-black selection:text-white">
       <Navigation />
 
-      <div className="max-w-[1440px] mx-auto px-6 lg:px-12 pt-12 pb-24">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-6 lg:px-12 pt-12 pb-24">
         {/* HEADER SECTION */}
-        <header className="mb-16 space-y-4">
-          
+        <header className="mb-10 md:mb-16 space-y-4">
           <h1 className="text-4xl md:text-6xl font-extralight pt-8 tracking-tighter text-foreground uppercase italic">
             Collections<span className="not-italic font-normal">.</span>
           </h1>
           <div className="h-[1px] w-full bg-gradient-to-r from-border via-border/40 to-transparent" />
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-16">
-          {/* SIDEBAR */}
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-12 lg:gap-16">
+          {/* SIDEBAR (Desktop Only) */}
           <aside className="hidden lg:block sticky top-32 self-start h-fit space-y-12">
-            {/* Categories */}
             <section className="space-y-6">
-              <h3 className="text-[11px] font-bold tracking-[0.2em] uppercase text-foreground/40">Categories</h3>
+              <h3 className="text-[14px] font-bold tracking-[0.2em] uppercase text-foreground/40">Categories</h3>
               <ul className="space-y-4">
                 {CATEGORIES.map((cat) => (
                   <li key={cat}>
@@ -120,9 +185,8 @@ export default function ShopPage() {
               </ul>
             </section>
 
-            {/* Price Filter */}
             <section className="space-y-6 pt-6 border-t border-border/40">
-              <h3 className="text-[11px] font-bold tracking-[0.2em] uppercase text-foreground/40">Price Range</h3>
+              <h3 className="text-[14px] font-bold tracking-[0.2em] uppercase text-foreground/40">Price Range</h3>
               <div className="flex flex-col gap-3">
                 {PRICE_RANGES.map((range, idx) => (
                   <button
@@ -137,40 +201,32 @@ export default function ShopPage() {
                 ))}
               </div>
             </section>
-            
-            <div className="p-6 bg-muted/30 rounded-3xl border border-border/50">
-              <p className="text-[11px] leading-relaxed text-muted-foreground uppercase tracking-widest">
-                DBS Essentials.
-              </p>
-            </div>
           </aside>
 
           {/* MAIN GRID */}
           <section className="space-y-8">
             {/* CONTROLS */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-border/40">
+            <div className="flex items-center justify-between gap-6 pb-6 border-b border-border/40">
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className="lg:hidden flex items-center gap-2 px-5 py-2.5 bg-foreground text-background rounded-full text-[10px] uppercase font-bold tracking-widest"
+                  className="lg:hidden flex items-center gap-2 px-4 py-2 bg-foreground text-background rounded-full text-[9px] uppercase font-bold tracking-widest"
                 >
-                  <Sliders className="w-3.5 h-3.5" />
+                  <Sliders className="w-3 h-3" />
                   Filters
                 </button>
-                <span className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground font-medium">
-                  Showing {filteredProducts.length} Results
-                </span>
+                
               </div>
 
-              <div className="flex items-center gap-3 self-end sm:self-auto">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold">Sort By</span>
-                <div className="relative group">
+              <div className="flex items-center gap-2">
+                <span className="hidden xs:inline text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold">Sort By</span>
+                <div className="relative">
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="appearance-none bg-transparent pl-2 pr-8 py-1 text-xs font-semibold uppercase tracking-widest focus:outline-none cursor-pointer"
+                    className="appearance-none bg-transparent pl-2 pr-6 py-1 text-[10px] md:text-xs font-semibold uppercase tracking-widest focus:outline-none cursor-pointer"
                   >
-                    <option value="newest">Newest First</option>
+                    <option value="newest">Newest</option>
                     <option value="price-low">Price: Low</option>
                     <option value="price-high">Price: High</option>
                   </select>
@@ -179,35 +235,35 @@ export default function ShopPage() {
               </div>
             </div>
 
-            {/* PRODUCT GRID */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-16">
+            {/* PRODUCT GRID - 2 columns on mobile */}
+            <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-10 md:gap-x-8 md:gap-y-16">
               {filteredProducts.map((product) => {
                 const candidates = buildCandidateKeys(product.baseNoExt)
                 const { src600, srcSet } = buildImgSources(candidates[0])
 
                 return (
                   <Link key={product.id} href={`/product/${product.id}`} className="group relative block">
-                    <div className="space-y-5">
+                    <div className="space-y-3 md:space-y-5">
                       {/* Image Container */}
-                      <div className="relative aspect-[4/5] overflow-hidden bg-[#f2f2f2] dark:bg-[#151515] rounded-[2rem]">
+                      <div className="relative aspect-[4/5] overflow-hidden bg-[#f2f2f2] dark:bg-[#151515] rounded-2xl md:rounded-[2rem]">
                         <img
                           src={src600}
                           srcSet={srcSet}
                           alt={product.name}
-                          className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700 ease-out"
+                          className="w-full h-full object-cover grayscale-[0.1] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700 ease-out"
                           loading="lazy"
                           data-candidates={JSON.stringify(candidates)}
                           data-idx="0"
                           data-mode="render"
                           onError={handleImgError}
                         />
-                        <div className="absolute top-4 left-4">
-                           <span className="px-3 py-1.5 backdrop-blur-md bg-black/50 border border-white/20 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] text-white">
+                        <div className="absolute top-2 left-2 md:top-4 md:left-4">
+                           <span className="px-2 py-1 md:px-3 md:py-1.5 backdrop-blur-md bg-black/50 border border-white/20 rounded-full text-[7px] md:text-[9px] font-bold uppercase tracking-[0.2em] text-white">
                             DBS Official
                            </span>
                         </div>
-                        {/* Hover Overlay */}
-                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                        {/* Desktop Hover Overlay */}
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 hidden md:flex items-center justify-center">
                           <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                              <span className="bg-white text-black px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-tighter flex items-center gap-2">
                                Quick View <ArrowRight className="w-3 h-3" />
@@ -217,23 +273,21 @@ export default function ShopPage() {
                       </div>
 
                       {/* Info */}
-                      <div className="px-1 space-y-2">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold mb-1">
-                              {product.category}
-                            </p>
-                            <h3 className="text-sm md:text-base font-medium tracking-tight text-foreground line-clamp-1">
-                              {product.name}
-                            </h3>
-                          </div>
+                      <div className="px-1 space-y-1 md:space-y-2">
+                        <div>
+                          <p className="text-[8px] md:text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold mb-0.5 md:mb-1">
+                            {product.category}
+                          </p>
+                          <h3 className="text-xs md:text-base font-medium tracking-tight text-foreground line-clamp-1">
+                            {product.name}
+                          </h3>
                         </div>
-                        <div className="flex items-center justify-between pt-2">
-                           <p className="text-lg font-light tracking-tighter">
+                        <div className="flex items-center justify-between pt-1">
+                           <p className="text-sm md:text-lg font-light tracking-tighter">
                             ₦{product.price.toLocaleString()}
                           </p>
-                          <div className="flex items-center gap-1.5 opacity-60">
-                            <span className="text-[10px] font-bold">★ {product.rating}.0</span>
+                          <div className="hidden xs:flex items-center gap-1 opacity-60">
+                            <span className="text-[8px] md:text-[10px] font-bold">★ {product.rating}.0</span>
                           </div>
                         </div>
                       </div>
@@ -245,14 +299,14 @@ export default function ShopPage() {
 
             {/* EMPTY STATE */}
             {filteredProducts.length === 0 && (
-              <div className="text-center py-40 space-y-6">
-                <p className="text-sm uppercase tracking-widest text-muted-foreground italic">No pieces found in this vault.</p>
+              <div className="text-center py-32 space-y-6">
+                <p className="text-sm uppercase tracking-widest text-muted-foreground italic">No pieces found in this curation.</p>
                 <Button 
                   variant="outline" 
                   onClick={() => { setSelectedCategory("All"); setSelectedPriceRange(0); }}
                   className="rounded-full px-8 border-foreground/20 uppercase text-[10px] tracking-widest font-bold"
                 >
-                  Reset Curation
+                  Reset
                 </Button>
               </div>
             )}

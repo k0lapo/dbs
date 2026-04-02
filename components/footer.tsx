@@ -50,21 +50,21 @@ export default function Footer() {
             </div>
 
             {/* SHORT TEXT – RESPONSIVE */}
-            <p className="text-[11px] text-muted-foreground leading-relaxed font-light max-w-xs md:hidden text-center md:text-left">
+            <p className="text-[14px] text-muted-foreground leading-relaxed font-light max-w-xs md:hidden text-center md:text-left">
               Premium African luxury streetwear.
             </p>
 
-            <p className="hidden md:block text-[11px] text-muted-foreground leading-relaxed font-light max-w-xs">
+            <p className="hidden md:block text-[14px] text-muted-foreground leading-relaxed font-light max-w-xs">
               Premium luxury streetwear, proudly African. Built for cities, stories, and main-character moments.
             </p>
           </div>
 
           {/* SHOP */}
           <div className="space-y-3 flex flex-col items-center md:items-start">
-            <h4 className="text-[11px] tracking-[0.3em] uppercase text-foreground/70">
+            <h4 className="text-[14px] tracking-[0.3em] uppercase text-foreground/70">
               Shop
             </h4>
-            <ul className="space-y-2 text-[11px] text-muted-foreground">
+            <ul className="space-y-2 text-[14px] text-muted-foreground">
               <li>
                 <Link href="/shop" className="hover:text-foreground transition-colors font-light">
                   All Products
@@ -80,10 +80,10 @@ export default function Footer() {
 
           {/* COMPANY */}
           <div className="space-y-3 flex flex-col items-center md:items-start">
-            <h4 className="text-[11px] tracking-[0.3em] uppercase text-foreground/70">
+            <h4 className="text-[14px] tracking-[0.3em] uppercase text-foreground/70">
               Company
             </h4>
-            <ul className="space-y-2 text-[11px] text-muted-foreground">
+            <ul className="space-y-2 text-[14px] text-muted-foreground">
               <li>
                 <Link href="/about" className="hover:text-foreground transition-colors font-light">
                   About
@@ -104,7 +104,7 @@ export default function Footer() {
 
           {/* SOCIAL / EMAIL — centered on mobile, left on desktop */}
           <div className="space-y-3 flex flex-col items-center md:items-start">
-            <h4 className="text-[11px] tracking-[0.3em] uppercase text-foreground/70">
+            <h4 className="text-[14px] tracking-[0.3em] uppercase text-foreground/70">
               Follow
             </h4>
 
@@ -135,7 +135,7 @@ export default function Footer() {
               </a>
             </div>
 
-            <p className="text-[11px] text-muted-foreground font-light max-w-[200px] text-center md:text-left">
+            <p className="text-[14px] text-muted-foreground font-light max-w-[200px] text-center md:text-left">
               Wholesale & collabs:{" "}
               <span className="underline underline-offset-4">
                 dbsbysowetong09@gmail.com
@@ -150,7 +150,7 @@ export default function Footer() {
             border-t border-border/60 pt-6 
             flex flex-col sm:flex-row 
             justify-between items-center gap-3 
-            text-[11px] text-muted-foreground font-light 
+            text-[14px] text-muted-foreground font-light 
             text-center
           "
         >

@@ -1,59 +1,72 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Plus } from "lucide-react"
 
 export default function HeroSection() {
   return (
-    <section className="relative h-screen items-center justify-center w-full bg-black overflow-hidden">
-        
-      {/* Background image */}
-      <div className="absolute inset-0">
-        <img
-    src="/1pac.jpg"
-    alt="DripBySoweto brand hero"
-    className="absolute inset-0 w-full h-full object-cover"
-  />
-        {/* Lux gradient overlay */}
-        <div className="absolute inset-0 bg-linear-to-l from-black/75 via-black/65 to-black/20" />
+    <section className="relative h-screen w-full overflow-hidden">
+      {/* Optimized Background Image */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/1pac.jpg" // Ensure this is in your /public folder
+          alt="DBS Editorial Hero"
+          fill
+          priority // Tells Next.js to load this immediately
+          quality={90}
+          className="object-cover object-center scale-105 animate-slow-zoom transition-transform duration-[10s]"
+        />
+        {/* Sophisticated Multi-layer Overlay */}
+        <div className="absolute inset-0 bg-black/30" /> {/* Dimmer */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent md:block hidden" />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
-        <div className="flex flex-col justify-center items-end min-h-[80vh] md:min-h-[90vh]">
-          <div className="w-full md:max-w-md lg:max-w-lg text-right space-y-6 md:space-y-8">
-            <div className="space-y-3">
-              <p className="text-[0.7rem] tracking-[0.35em] uppercase text-white/50">
-                DripBySoweto
-              </p>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-white leading-tight">
-                DBS
-                <span className="block md:inline"> Collection</span>
-              </h1>
-              <p className="text-sm md:text-base text-white/70 leading-relaxed max-w-xs md:ml-auto md:max-w-none">
-                Tailored cuts, clean lines, and unapologetic street energy — built for the ones
-                who move different.
-              </p>
-            </div>
+      {/* Decorative Technical Elements */}
+      <div className="absolute top-12 left-12 z-20 hidden md:block">
+        <div className="flex items-center gap-4">
+          <Plus className="w-4 h-4 text-white/30" />
+          <span className="text-[10px] tracking-[0.5em] uppercase text-white/40 font-light">
+            Est. 2026 / Archive 01
+          </span>
+        </div>
+      </div>
 
-            {/* Little ":)" but make it feel intentional */}
-            <div className="flex items-center justify-end gap-3 text-white/60 text-sm">
-              <span className="h-px w-10 bg-white/30" />
-              <span>:)</span>
-            </div>
+      {/* Content Container */}
+      <div className="relative z-10 max-w-[1440px] mx-auto px-6 lg:px-12 h-full flex flex-col justify-center">
+        <div className="max-w-4xl space-y-10">
+          
+          <div className="space-y-4">
+            
+            
+            <h1 className="text-6xl md:text-8xl lg:text-9xl font-extralight text-white tracking-tighter leading-[0.85]">
+              Drip by Soweto 
+            </h1>
+            
+            <p className="text-base md:text-xl text-white/60 font-light leading-relaxed max-w-md italic border-l border-white/10 pl-6">
+              "Tailored cuts and clean lines engineered for those who navigate the city in silence."
+            </p>
+          </div>
 
-            {/* CTA */}
-            <div className="pt-2">
-              <Link href="/shop">
-                <button className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/5 px-6 py-2.5 text-xs md:text-sm font-medium text-white tracking-wide hover:bg-white/10 hover:border-white/60 transition-colors">
-                  Explore the collection
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </Link>
-            </div>
+          {/* Luxury CTA Interaction */}
+          <div className="pt-4">
+            <Link href="/shop" className="group relative inline-flex items-center gap-6 overflow-hidden">
+              <span className="text-[11px] font-bold uppercase tracking-[0.5em] text-white">
+                Explore Latest Drop
+              </span>
+              <div className="relative flex items-center justify-center">
+                <div className="w-12 h-[1px] bg-white/30 group-hover:w-20 transition-all duration-700" />
+                <ArrowRight className="w-4 h-4 text-white -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-700" />
+              </div>
+            </Link>
           </div>
         </div>
       </div>
+
+  
+
+      
     </section>
   )
 }
